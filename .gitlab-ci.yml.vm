@@ -1,0 +1,45 @@
+stages:
+  - build-and-test
+  - deploy
+
+variables:
+  DOCKER_HOST: "tcp://localhost:2375"
+  GCLOUD_BUCKET: "srs-ai-demo"
+  GCLOUD_INSTANCE: "ai-production-instance"
+  GCLOUD_FIREWALLRULE: "default-allow-http-8080"
+
+build-and-test:
+  stage: build-and-test
+  image: openjdk:8-jdk
+  script:
+    - chmod +x ./gradlew
+    - ./gradlew build jacocoTestReport
+  artifacts:
+    when: always
+    paths:
+      - build/reports/
+      - build/libs/
+  only:
+    - master
+
+deploy:
+  stage: deploy
+  image: python:2.7
+  before_script:
+    - echo "deb http://packages.cloud.google.com/apt cloud-sdk-jessie main" | tee /etc/apt/sources.list.d/google-cloud-sdk.list
+    - curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
+    - apt-get update
+    - apt-get -qq -y install google-cloud-sdk
+    - chmod 755 ./scripts/wait-for-application.sh
+  script:
+    - gcloud auth activate-service-account --key-file "$DEPLOY_KEY_FILE_PRODUCTION"
+    - gcloud compute firewall-rules delete $GCLOUD_FIREWALLRULE --project $PROJECT_ID_PRODUCTION || true # failure should not lead to failure of the build stage
+    - gcloud compute instances delete $GCLOUD_INSTANCE --quiet --project $PROJECT_ID_PRODUCTION --zone europe-west3-c || true # failure should not lead to failure of the build stage
+    - gsutil cp build/libs/* gs://$GCLOUD_BUCKET/app.jar
+    - gcloud compute instances create $GCLOUD_INSTANCE --project $PROJECT_ID_PRODUCTION --image-family debian-9 --image-project debian-cloud --machine-type g1-small --scopes "userinfo-email,cloud-platform" --metadata-from-file startup-script=scripts/instance-startup.sh --metadata BUCKET=$GCLOUD_BUCKET --zone europe-west3-c --tags http-server
+    - ./scripts/wait-for-application.sh $PROJECT_ID_PRODUCTION $GCLOUD_INSTANCE
+    - gcloud compute firewall-rules create $GCLOUD_FIREWALLRULE --project $PROJECT_ID_PRODUCTION --allow tcp:8080 --source-ranges 0.0.0.0/0 --target-tags http-server --description "Allow port 8080 access to http-server"
+  only:
+    - master
+
+

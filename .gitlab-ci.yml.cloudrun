@@ -1,0 +1,62 @@
+stages:
+  - build-and-test
+  - dockerize-and-push
+  - deploy
+
+variables:
+  DOCKER_HOST: "tcp://localhost:2375"
+
+build-and-test:
+  stage: build-and-test
+  image: openjdk:12-jdk-oracle
+#  services:
+#    - mysql:8.0.17
+#    - fluent/fluentd:v1.6-1
+#    - nats-streaming:0.15.1
+#    variables:
+#      NATS_URL: "nats://nats-streaming:4222"
+#      FLUENTD_HOST: "fluentd"
+#      RECEPTIONSERVICE_BASE_URL: "http://receptionservice:8080"
+  script:
+    - chmod +x ./gradlew
+    - ./gradlew build jacocoTestReport
+  artifacts:
+    when: always
+    paths:
+      - build/reports/
+      - build/libs/
+      - Dockerfile
+  only:
+    - master
+
+dockerize-and-push:
+  stage: dockerize-and-push
+  image: docker-hub.informatik.haw-hamburg.de/icc/docker-dind:stable-dind
+  services:
+    - docker-hub.informatik.haw-hamburg.de/icc/docker-dind:stable-dind
+  script:
+    - export JAR_FILE="./build/libs/`ls ./build/libs`"
+    - printf "jar path is \"$JAR_FILE\"\n"
+    - docker login -u _json_key --password-stdin https://gcr.io < "$DEPLOY_KEY_FILE_PRODUCTION"
+    - docker build --build-arg JAR_FILE=$JAR_FILE --tag gcr.io/$PROJECT_ID_PRODUCTION/gcptest:latest .
+    - docker push gcr.io/$PROJECT_ID_PRODUCTION/gcptest:latest
+  dependencies:
+    - build-and-test
+  only:
+    - master
+
+deploy:
+  stage: deploy
+  image: python:2.7
+  before_script:
+    - echo "deb http://packages.cloud.google.com/apt cloud-sdk-jessie main" | tee /etc/apt/sources.list.d/google-cloud-sdk.list
+    - curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
+    - apt-get update
+    - apt-get -qq -y install google-cloud-sdk
+  script:
+    - gcloud auth activate-service-account --key-file "$DEPLOY_KEY_FILE_PRODUCTION"
+    - gcloud beta run deploy gcptestservice --project $PROJECT_ID_PRODUCTION --platform managed --region europe-west1 --allow-unauthenticated --image gcr.io/$PROJECT_ID_PRODUCTION/gcptest:latest
+  dependencies:
+    - dockerize-and-push
+  only:
+    - master

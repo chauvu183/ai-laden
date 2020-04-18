@@ -1,0 +1,34 @@
+version: '3'
+
+networks:
+  backendservices:
+
+services:
+  #  # ------------------------------------------------------------------------------------------------
+  #  # Uncomment to use this service as a local docker container.
+  #  # Start all containers with "docker-compose up -d --build" oder use "docker-compose build" upfront
+  #  # to build current image from project.
+  #  # ------------------------------------------------------------------------------------------------
+  #  hurtigrouten:
+  #    container_name: hurtigrouten
+  #    build:
+  #      context: .
+  #      args:
+  #        JAR_FILE: ./build/libs/hurtigrouten-0.0.1-SNAPSHOT.jar
+  #    ports:
+  #    - "8080:8080"
+  #    networks:
+  #    - backendservices
+
+  # -------------------------------------------------------
+  # Database
+  # -------------------------------------------------------
+  mysql:
+    image: mysql:8.0.17
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+    command: --default-authentication-plugin=mysql_native_password
+    ports:
+      - "3306:3306"
+    networks:
+      - backendservices

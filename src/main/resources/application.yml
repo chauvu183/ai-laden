@@ -1,0 +1,64 @@
+server:
+  port: 8080
+---
+management:
+  health:
+    mail:
+      enabled: false
+---
+spring:
+  profiles: default, testing, production
+  main:
+    allow-bean-definition-overriding: true
+  application:
+    name: myferrybooking
+  mail:
+    host: fakehost
+    port: 587
+    username: fake
+    password: fake
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+---
+spring:
+  profiles: production
+  jpa:
+    database: MYSQL
+    generate-ddl: true
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        show_sql: false
+        use_sql_comments: true
+        dialect: org.hibernate.dialect.MySQL5InnoDBDialect
+  datasource:
+    url: jdbc:mysql://localhost:3306/bookingservice?createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true&useSSL=false
+    username: root
+    password: root
+---
+spring:
+  profiles: testing, default
+  jpa:
+    database: H2
+    generate-ddl: true
+    hibernate:
+      ddl-auto: create
+    properties:
+      hibernate:
+        show_sql: false
+        use_sql_comments: true
+  datasource:
+    url: jdbc:h2:mem:testdb;DB_CLOSE_ON_EXIT=FALSE
+  h2:
+    console:
+      enabled: true
+  cloud:
+    gcp:
+      pubsub:
+        enabled: false
+        
