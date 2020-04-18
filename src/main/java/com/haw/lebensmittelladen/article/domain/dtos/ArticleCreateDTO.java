@@ -6,7 +6,11 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.NotFound;
 
+import javax.validation.Valid;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
@@ -20,9 +24,8 @@ public class ArticleCreateDTO {
     private String productName;
 
     @ApiModelProperty(required = true)
-    //TODO: size?
-    @Size(min = 1, max = 20)
     @NotNull
+    @Valid
     private Barcode barcode;
 
     @ApiModelProperty(required = true)
@@ -34,9 +37,11 @@ public class ArticleCreateDTO {
 
     @ApiModelProperty(required = true)
     @NotNull
-    private double price;
+    private Double price;
 
     @ApiModelProperty(required = true)
     @NotNull
-    private int quantity;
+    @Min(0)
+    @Max(Integer.MAX_VALUE)
+    private Integer quantity;
 }

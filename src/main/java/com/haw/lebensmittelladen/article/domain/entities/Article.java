@@ -36,9 +36,9 @@ public class Article {
 
     //TODO: quantity > 0
     @ApiModelProperty(required = true)
-    private Integer quantity;
+    private int quantity;
 
-    public Article(Barcode barcode, String productName, String productFullName, String company, double price, Integer quantity) {
+    public Article(Barcode barcode, String productName, String productFullName, String company, double price, int quantity) {
         this.barcode = barcode;
         this.productName = productName;
         this.productFullName = productFullName;

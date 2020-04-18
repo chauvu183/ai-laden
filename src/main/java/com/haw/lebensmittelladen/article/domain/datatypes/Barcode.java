@@ -39,4 +39,11 @@ public class Barcode {
             return bookingCode.matches("^[0-9]{" + CODE_LENGTH + "}$");
     }
 
+
+    @Override
+    public String toString() {
+        return "Barcode{" +
+                "code='" + code + '\'' +
+                '}';
+    }
 }
