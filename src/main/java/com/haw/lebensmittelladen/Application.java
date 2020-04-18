@@ -1,6 +1,9 @@
 package com.haw.lebensmittelladen;
 
+import com.haw.lebensmittelladen.article.domain.datatypes.Barcode;
 import com.haw.lebensmittelladen.article.domain.datatypes.Email;
+import com.haw.lebensmittelladen.article.domain.entities.Article;
+import com.haw.lebensmittelladen.article.domain.repositories.ArticleRepository;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -33,26 +36,6 @@ public class Application {
         SpringApplication.run(Application.class, args);
     }
 
-    /*// Remove to use real mail gateway (review config in application.yml)
-    @Bean
-    public BookingComponentMailGateway bookingComponentMailGateway() {
-        BookingComponentMailGateway bookingComponentMailGateway = Mockito.mock(BookingComponentMailGateway.class);
-        when(bookingComponentMailGateway.sendMail(anyString(), anyString(), anyString())).thenReturn(true);
-        return bookingComponentMailGateway;
-    }
-
-    // use mock messaging for local start of application
-    @Bean
-    @Profile("default")
-    public BookingComponentMessagingGateway bookingComponentMessagingGateway() {
-        return Mockito.mock(BookingComponentMessagingGateway.class);
-    }
-
-    @Override
-    public Health health() {
-        return Health.up().build();
-    }
-
     @Bean
     public Docket api() {
         return new Docket(DocumentationType.SWAGGER_2)
@@ -80,29 +63,21 @@ public class Application {
 @Profile("default")
 class PopulateTestDataRunner implements CommandLineRunner {
 
-    private final CustomerRepository customerRepository;
+    private final ArticleRepository articleRepository;
 
     @Autowired
-    public PopulateTestDataRunner(CustomerRepository customerRepository) {
+    public PopulateTestDataRunner(ArticleRepository articleRepository) {
         super();
-        this.customerRepository = customerRepository;
+        this.articleRepository = articleRepository;
     }
 
     @Override
     public void run(String... args) {
         Arrays.asList(
-                "Miller,Doe,Smith".split(","))
+                "Tomate,Gurke,Erbse".split(","))
                 .forEach(
-                        name -> customerRepository.save(new Customer("Jane", name, Gender.FEMALE, new Email(name + "@dummy.org"), null))
+                        name -> articleRepository.save(new Article(new Barcode(), name, "Edeka Bio " + name, "Edeka", 1.55, 2))
                 );
-
-        Customer customer = new Customer("Stefan", "Sarstedt", Gender.MALE, new Email("stefan.sarstedt@haw-hamburg.de"), null);
-        Booking booking = new Booking("scandlines1");
-        customer.getBookings().add(booking);
-        booking = new Booking("scandlines2");
-        booking.updateBookingStatus(BookingStatus.CONFIRMED);
-        customer.getBookings().add(booking);
-
-        customerRepository.save(customer);
-    }*/
+        System.out.println(articleRepository.findAll());
+    }
 }
