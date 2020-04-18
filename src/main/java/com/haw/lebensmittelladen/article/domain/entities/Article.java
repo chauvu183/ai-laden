@@ -18,7 +18,9 @@ public class Article {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
+    //@Column(unique=true) //barcodes are essentially links to some place thus no reason to make them unique
     @ApiModelProperty(required = true)
+    @Embedded
     private Barcode barcode;
 
     @ApiModelProperty(required = true)
@@ -48,7 +50,8 @@ public class Article {
     }
 
     public static Article of(ArticleCreateDTO articleCreateDTO) {
-        return new Article(articleCreateDTO.getBarcode(),
+        Barcode bar = articleCreateDTO.getBarcode();
+        return new Article(bar!=null&&Barcode.isValid(bar.getCode())?articleCreateDTO.getBarcode():new Barcode(),
                 articleCreateDTO.getProductName(),
                 articleCreateDTO.getProductFullName(),
                 articleCreateDTO.getCompany(),
