@@ -27,13 +27,13 @@ import static org.mockito.Mockito.when;
 
 @SpringBootApplication
 @EnableSwagger2
-public class Application implements HealthIndicator {
+public class Application {
 
     public static void main(String[] args) {
         SpringApplication.run(Application.class, args);
     }
 
-    // Remove to use real mail gateway (review config in application.yml)
+    /*// Remove to use real mail gateway (review config in application.yml)
     @Bean
     public BookingComponentMailGateway bookingComponentMailGateway() {
         BookingComponentMailGateway bookingComponentMailGateway = Mockito.mock(BookingComponentMailGateway.class);
@@ -104,5 +104,5 @@ class PopulateTestDataRunner implements CommandLineRunner {
         customer.getBookings().add(booking);
 
         customerRepository.save(customer);
-    }
+    }*/
 }
