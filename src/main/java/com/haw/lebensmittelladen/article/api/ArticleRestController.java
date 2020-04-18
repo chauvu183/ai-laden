@@ -46,7 +46,7 @@ public class ArticleRestController {
     public List<Article> getArticles(@RequestParam(value = "barcode", required = false, defaultValue = "") String barcode, @RequestParam(value = "productName", required = false, defaultValue = "") String productName) throws ArticleNotFoundException {
         if (productName.isBlank() && barcode.isBlank()) {
             return articleRepository.findAll();
-        } else if (barcode.isEmpty()) {
+        } else if (!barcode.isEmpty()) {
             if (!Barcode.isValid(barcode)) {
                 throw ArticleNotFoundException.barcode(barcode);
             } else {
@@ -56,7 +56,7 @@ public class ArticleRestController {
             }
         } else {
             return Collections.singletonList(articleRepository
-                    .findByProductName(productName)
+                    .findByProductNameIgnoreCase(productName)
                     .orElseThrow(() -> ArticleNotFoundException.productName(productName)));
         }
     }

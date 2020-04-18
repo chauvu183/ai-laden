@@ -10,5 +10,5 @@ import java.util.Optional;
 @Repository
 public interface ArticleRepository extends JpaRepository<Article, Long> {
     Optional<Article> findByBarcode(Barcode barcode);
-    Optional<Article> findByProductName(String productName);
+    Optional<Article> findByProductNameIgnoreCase(String productName);
 }

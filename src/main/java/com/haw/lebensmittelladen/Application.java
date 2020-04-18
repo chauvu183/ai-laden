@@ -25,15 +25,12 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 import java.util.Arrays;
 import java.util.Collections;
 
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.when;
-
 @SpringBootApplication
 @EnableSwagger2
 public class Application {
 
     public static void main(String[] args) {
-        SpringApplication.run(Application.class, args);
+        SpringApplication.run(Application.class, args); 
     }
 
     @Bean

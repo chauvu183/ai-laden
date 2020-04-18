@@ -41,7 +41,6 @@ dockerize-and-push:
     - printf "jar path is \"$JAR_FILE\"\n"
     - docker login -u _json_key --password-stdin https://gcr.io < "$GCP_GITLAB_TOKENFILE"
     - cat $GCP_CLOUDSQL_TOKENFILE > ./token.json
-    - echo build --build-arg JAR_FILE=$JAR_FILE --build-arg TOKEN_FILE=./token.json --tag gcr.io/$GCP_PROJECTID/$CI_PROJECT_NAME:$CI_COMMIT_SHA .
     - docker build --build-arg JAR_FILE=$JAR_FILE --build-arg TOKEN_FILE=./token.json --tag gcr.io/$GCP_PROJECTID/$CI_PROJECT_NAME:$CI_COMMIT_SHA .
     - docker push gcr.io/$GCP_PROJECTID/$CI_PROJECT_NAME:$CI_COMMIT_SHA
   dependencies:
