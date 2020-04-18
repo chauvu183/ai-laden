@@ -27,7 +27,7 @@ public class Article {
     @ApiModelProperty(required = true)
     private String productFullName;
 
-    @ApiModelProperty(required = true)
+    @ApiModelProperty()
     private String company;
 
     //TODO: currency? format?
@@ -38,21 +38,29 @@ public class Article {
     @ApiModelProperty(required = true)
     private Integer quantity;
 
-    public Article(Barcode barcode, String name, double price){
+    public Article(Barcode barcode, String productName, String productFullName, String company, double price, Integer quantity) {
         this.barcode = barcode;
         this.productName = productName;
+        this.productFullName = productFullName;
+        this.company = company;
         this.price = price;
+        this.quantity = quantity;
     }
 
-    public static Article of(ArticleCreateDTO articleCreateDTO){
-        return new Article(articleCreateDTO.getBarcode(), articleCreateDTO.getName(), articleCreateDTO.getPrice());
+    public static Article of(ArticleCreateDTO articleCreateDTO) {
+        return new Article(articleCreateDTO.getBarcode(),
+                articleCreateDTO.getProductName(),
+                articleCreateDTO.getProductFullName(),
+                articleCreateDTO.getCompany(),
+                articleCreateDTO.getPrice(),
+                articleCreateDTO.getQuantity());
     }
 
-    public boolean isAvailable(){
+    public boolean isAvailable() {
         return quantity > 0;
     }
 
-    public boolean enoughInStock(int needed){
+    public boolean enoughInStock(int needed) {
         return quantity >= needed;
     }
 }

@@ -44,20 +44,20 @@ public class ArticleRestController {
     })
     @GetMapping
     public List<Article> getArticles(@RequestParam(value = "barcode", required = false, defaultValue = "") String barcode, @RequestParam(value = "productName", required = false, defaultValue = "") String productName) throws ArticleNotFoundException {
-        if (productName.isBlank() && barcode.isEmpty()) {
+        if (productName.isBlank() && barcode.isBlank()) {
             return articleRepository.findAll();
         } else if (barcode.isEmpty()) {
             if (!Barcode.isValid(barcode)) {
-                throw new ArticleNotFoundException(barcode);
+                throw ArticleNotFoundException.barcode(barcode);
             } else {
                 return Collections.singletonList(articleRepository
                         .findByBarcode(new Barcode(barcode))
-                        .orElseThrow(() -> new ArticleNotFoundException(barcode)));
+                        .orElseThrow(() -> ArticleNotFoundException.barcode(barcode)));
             }
         } else {
             return Collections.singletonList(articleRepository
                     .findByProductName(productName)
-                    .orElseThrow(() -> new ArticleNotFoundException(productName)));
+                    .orElseThrow(() -> ArticleNotFoundException.productName(productName)));
         }
     }
 

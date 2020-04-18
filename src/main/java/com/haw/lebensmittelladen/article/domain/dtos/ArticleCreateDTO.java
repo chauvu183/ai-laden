@@ -16,17 +16,27 @@ import javax.validation.constraints.Size;
 public class ArticleCreateDTO {
 
     @ApiModelProperty(required = true)
-    @Size(min = 1, max = 20)
     @NotNull
-    private String name;
-
+    private String productName;
 
     @ApiModelProperty(required = true)
+    //TODO: size?
     @Size(min = 1, max = 20)
     @NotNull
     private Barcode barcode;
 
     @ApiModelProperty(required = true)
     @NotNull
+    private String productFullName;
+
+    @ApiModelProperty()
+    private String company;
+
+    @ApiModelProperty(required = true)
+    @NotNull
     private double price;
+
+    @ApiModelProperty(required = true)
+    @NotNull
+    private int quantity;
 }
