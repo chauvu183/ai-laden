@@ -1,7 +1,9 @@
 package com.haw.lebensmittelladen.article.domain.datatypes;
 
+import com.haw.lebensmittelladen.article.domain.repositories.ArticleRepository;
 import lombok.AccessLevel;
 import lombok.Getter;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
@@ -19,6 +21,10 @@ public class Barcode implements Serializable {
 
     @Getter(AccessLevel.NONE)
     private static final int CODE_LENGTH = 13;
+    private static ArticleRepository articleRepository;
+
+
+
 
     private static final String rexexp = "^[0-9]{" + CODE_LENGTH + "}$";
 
@@ -31,11 +37,19 @@ public class Barcode implements Serializable {
         this.code = generateBarcode();
     }
 
-    public static String generateBarcode(){
+    public String generateBarcode(){
         StringBuilder code = new StringBuilder();
         Random r = new Random();
-        for (int i = 0; i < CODE_LENGTH; i++) {
-            code.append("0123456789".charAt(r.nextInt(10)));
+        boolean exists = true;
+        while (exists){
+            for (int i = 0; i < CODE_LENGTH; i++) {
+                code.append("0123456789".charAt(r.nextInt(10)));
+            }
+            if(articleRepository.findByBarcode(new Barcode(code.toString())).isEmpty()){
+                exists = false;
+            } else {
+                code = new StringBuilder();
+            }
         }
         return code.toString();
     }
