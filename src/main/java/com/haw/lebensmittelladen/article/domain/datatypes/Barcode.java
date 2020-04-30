@@ -31,6 +31,7 @@ public class Barcode implements Serializable {
         StringBuilder code = new StringBuilder();
         Random r = new Random();
         for (int i = 0; i < CODE_LENGTH; i++) {
+            //todo unique?
             code.append("0123456789".charAt(r.nextInt(10)));
         }
         return code.toString();
