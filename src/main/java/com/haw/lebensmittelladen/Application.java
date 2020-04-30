@@ -46,7 +46,7 @@ public class Application {
 
     private ApiInfo apiInfo() {
         return new ApiInfo(
-                "Hurtig-Routen REST API",
+                "Lebensmittelladen REST API",
                 "REST API for Architecture-Course @ HAW-Hamburg",
                 "API v1",
                 "Terms of service",

@@ -23,7 +23,7 @@ public class ArticleCreateDTO {
     @NotNull
     private String productName;
 
-    @ApiModelProperty(required = true)
+    @ApiModelProperty()
     private Barcode barcode;
 
     @ApiModelProperty(required = true)
