@@ -35,11 +35,11 @@ public class ArticleRestController {
             @ApiResponse(code = 200, message = "Successfully retrieved article"),
             @ApiResponse(code = 404, message = "Article is not found")
     })
-    @GetMapping(value = "/{id:[\\d]+}")
-    public Article getArticle(@PathVariable("id") Long bookingId) throws ArticleNotFoundException {
+    @GetMapping(value = "/{barcode:[\\d]+}")
+    public Article getArticle(@PathVariable("barcode") Long barcode) throws ArticleNotFoundException {
         return articleRepository
-                .findById(bookingId)
-                .orElseThrow(() -> new ArticleNotFoundException(bookingId));
+                .findByBarcode(new Barcode(barcode.toString()))
+                .orElseThrow(() -> new ArticleNotFoundException(barcode));
     }
 
     @ApiOperation(value = "Get articles", response = Article.class, responseContainer = "List")
@@ -71,8 +71,8 @@ public class ArticleRestController {
     })
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Long addCustomer(@Valid @RequestBody ArticleCreateDTO articleCreateDTO) {
-        return articleRepository.save(Article.of(articleCreateDTO)).getId();
+    public String addArticle(@Valid @RequestBody ArticleCreateDTO articleCreateDTO) {
+        return articleRepository.save(Article.of(articleCreateDTO)).getBarcode().getCode();
     }
 
 }

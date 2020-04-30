@@ -14,13 +14,9 @@ import javax.persistence.*;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class Article {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
-
     //@Column(unique=true) //barcodes are essentially links to some place thus no reason to make them unique
     @ApiModelProperty(required = true)
-    @Embedded
+    @Id
     private Barcode barcode;
 
     @ApiModelProperty(required = true)

@@ -9,12 +9,13 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
+import java.io.Serializable;
 import java.util.Objects;
 import java.util.Random;
 
 @Getter
 @Embeddable
-public class Barcode{
+public class Barcode implements Serializable {
 
     @Getter(AccessLevel.NONE)
     private static final int CODE_LENGTH = 13;
