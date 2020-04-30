@@ -47,17 +47,9 @@ public class ArticleRestController {
             @ApiResponse(code = 200, message = "Successfully retrieved bookings"),
     })
     @GetMapping
-    public List<Article> getArticles(@RequestParam(value = "barcode", required = false, defaultValue = "") String barcode, @RequestParam(value = "productName", required = false, defaultValue = "") String productName) throws ArticleNotFoundException {
-        if (productName.isBlank() && barcode.isBlank()) {
+    public List<Article> getArticles(@RequestParam(value = "productName", required = false, defaultValue = "") String productName) throws ArticleNotFoundException {
+        if (productName.isBlank()) {
             return articleRepository.findAll();
-        } else if (!barcode.isBlank()) {
-            if (!Barcode.isValid(barcode)) {
-                throw ArticleNotFoundException.barcode(barcode);
-            } else {
-                return Collections.singletonList(articleRepository
-                        .findByBarcode(new Barcode(barcode))
-                        .orElseThrow(() -> ArticleNotFoundException.barcode(barcode)));
-            }
         } else {
             return Collections.singletonList(articleRepository
                     .findByProductNameIgnoreCase(productName)
