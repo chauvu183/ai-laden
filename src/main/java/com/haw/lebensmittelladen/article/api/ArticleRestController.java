@@ -5,6 +5,7 @@ import com.haw.lebensmittelladen.article.domain.dtos.ArticleCreateDTO;
 import com.haw.lebensmittelladen.article.domain.entities.Article;
 import com.haw.lebensmittelladen.article.domain.repositories.ArticleRepository;
 import com.haw.lebensmittelladen.article.exceptions.ArticleNotFoundException;
+import com.haw.lebensmittelladen.article.exceptions.BarcodeAlreadyExistsException;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -36,10 +37,10 @@ public class ArticleRestController {
             @ApiResponse(code = 404, message = "Article is not found")
     })
     @GetMapping(value = "/{barcode:[\\d]+}")
-    public Article getArticle(@PathVariable("barcode") Long barcode) throws ArticleNotFoundException {
+    public Article getArticle(@PathVariable("barcode") String barcode) throws ArticleNotFoundException {
         return articleRepository
-                .findByBarcode(new Barcode(barcode.toString()))
-                .orElseThrow(() -> new ArticleNotFoundException(barcode));
+                .findByBarcode(new Barcode(barcode))
+                .orElseThrow(() -> ArticleNotFoundException.barcode(barcode));
     }
 
     @ApiOperation(value = "Get articles", response = Article.class, responseContainer = "List")
@@ -63,7 +64,10 @@ public class ArticleRestController {
     })
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public String addArticle(@Valid @RequestBody ArticleCreateDTO articleCreateDTO) {
+    public String addArticle(@Valid @RequestBody ArticleCreateDTO articleCreateDTO) throws BarcodeAlreadyExistsException {
+        if(articleRepository.findByBarcode(articleCreateDTO.getBarcode()).isPresent()){
+            throw new BarcodeAlreadyExistsException(articleCreateDTO.getBarcode().getCode());
+        }
         return articleRepository.save(Article.of(articleCreateDTO)).getBarcode().getCode();
     }
 

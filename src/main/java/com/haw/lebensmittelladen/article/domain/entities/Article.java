@@ -47,7 +47,7 @@ public class Article {
 
     public static Article of(ArticleCreateDTO articleCreateDTO) {
         Barcode bar = articleCreateDTO.getBarcode();
-        return new Article(bar!=null&&Barcode.isValid(bar.getCode())?articleCreateDTO.getBarcode():new Barcode(),
+        return new Article(bar != null && Barcode.isValid(bar.getCode()) ? bar : new Barcode(),
                 articleCreateDTO.getProductName(),
                 articleCreateDTO.getProductFullName(),
                 articleCreateDTO.getCompany(),
