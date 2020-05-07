@@ -15,32 +15,51 @@ public class ShoppingCartService {
     @Autowired
     PaymentGateway payment;
 
-    public double getCartPrice(ShoppingCart cart){
-        return Math.round(cart.getContent().entrySet().stream().mapToDouble(kv -> kv.getKey().getPrice()*kv.getValue()).sum()*100)/100.0;
+    private ShoppingCart shoppingCart;
+
+    public ShoppingCartService() {
+        this.shoppingCart = createCart();
     }
 
-    public double payCart(ShoppingCart cart, Credentials cred){
+    public double getCartPrice() {
+        return getCartPrice(this.shoppingCart);
+    }
+
+    public double getCartPrice(ShoppingCart cart) {
+        return Math.round(cart.getContent().entrySet().stream().mapToDouble(kv -> kv.getKey().getPrice() * kv.getValue()).sum() * 100) / 100.0;
+    }
+
+    public double payCart(Credentials cred) {
+        return payCart(this.shoppingCart, cred);
+    }
+
+    public double payCart(ShoppingCart cart, Credentials cred) {
         double cost = getCartPrice(cart);
-        payment.pay(cost,cred);
+        payment.pay(cost, cred);
         cart.resetCart();
         return cost;
     }
 
-    public ShoppingCart createCart(){
+    public ShoppingCart createCart() {
         return new ShoppingCart();
     }
 
-    public ShoppingCart addItem(ShoppingCart cart, Article art, int amt){
+    public ShoppingCart addItem(Article art, int amt) {
+        return addItem(this.shoppingCart, art, amt);
+    }
+
+    public ShoppingCart addItem(ShoppingCart cart, Article art, int amt) {
         cart.addToCart(art, amt);
         return cart;
     }
 
-    public ShoppingCart addItems(Map<Article,Integer> contents){
-        return addItems(createCart(),contents);
+
+    public ShoppingCart addItems(Map<Article, Integer> contents) {
+        return addItems(this.shoppingCart, contents);
     }
 
-    public ShoppingCart addItems(ShoppingCart cart, Map<Article,Integer> contents){
-        contents.entrySet().forEach(kv -> cart.addToCart(kv.getKey(),kv.getValue()));
+    public ShoppingCart addItems(ShoppingCart cart, Map<Article, Integer> contents) {
+        contents.forEach(cart::addToCart);
         return cart;
     }
 
