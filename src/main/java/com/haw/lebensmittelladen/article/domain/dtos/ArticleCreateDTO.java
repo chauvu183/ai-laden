@@ -19,12 +19,12 @@ import javax.validation.constraints.Size;
 @AllArgsConstructor
 public class ArticleCreateDTO {
 
+    @ApiModelProperty()
+    private Barcode barcode;
+
     @ApiModelProperty(required = true)
     @NotNull
     private String productName;
-
-    @ApiModelProperty()
-    private Barcode barcode;
 
     @ApiModelProperty(required = true)
     @NotNull
