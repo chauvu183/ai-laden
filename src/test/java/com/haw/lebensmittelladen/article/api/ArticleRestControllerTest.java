@@ -29,7 +29,7 @@ import static org.assertj.core.api.Assertions.*;
 @SpringBootTest(classes = Application.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureJsonTesters
 @ActiveProfiles(profiles = "testing")
-class CustomerRestControllerTest {
+class ArticleRestControllerTest {
 
     @LocalServerPort
     private int port;
