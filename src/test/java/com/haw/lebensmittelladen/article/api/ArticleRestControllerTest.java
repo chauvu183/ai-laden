@@ -108,11 +108,11 @@ class ArticleRestControllerTest {
                 then().
                 statusCode(HttpStatus.CREATED.value());
         Optional<Article> article = articleRepository.findByBarcode(articleCreateDTO.getBarcode());
-        assertThat(article.isPresent());
+        assertThat(article.isPresent()).isTrue();
     }
 
     @Test
-    void addArticleFail(){
+    void addArticleFailBarcodeDublicate(){
         ArticleCreateDTO articleCreateDTO = new ArticleCreateDTO(article.getBarcode(), "Kirsche", "Edeka Bio Kirsche", "Edeka", 2.44, 2);
         given().
                 contentType(ContentType.JSON).
@@ -121,8 +121,20 @@ class ArticleRestControllerTest {
                 post("/articles").
                 then().
                 statusCode(HttpStatus.BAD_REQUEST.value());
-        Optional<Article> article = articleRepository.findByBarcode(articleCreateDTO.getBarcode());
-        assertThat(article.isEmpty());
+    }
+
+    @Test
+    void addArticleFailNegativeQuantity(){
+        ArticleCreateDTO articleCreateDTO = new ArticleCreateDTO(new Barcode(), "Kirsche", "Edeka Bio Kirsche", "Edeka", 2.44, -2);
+        given().
+                contentType(ContentType.JSON).
+                body(articleCreateDTO).
+                when().
+                post("/articles").
+                then().
+                statusCode(HttpStatus.BAD_REQUEST.value());
+        Optional<Article> articleOptional = articleRepository.findByBarcode(articleCreateDTO.getBarcode());
+        assertThat(articleOptional.isEmpty()).isTrue();
     }
 
 }
