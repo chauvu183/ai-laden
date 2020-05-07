@@ -21,6 +21,19 @@ public class ShoppingCartService {
         this.shoppingCart = createCart();
     }
 
+    private ShoppingCart createCart() {
+        return new ShoppingCart();
+    }
+
+    public ShoppingCart getShoppingCart() {
+        return shoppingCart;
+    }
+
+    public ShoppingCart newShoppingCart(){
+        this.shoppingCart = createCart();
+        return shoppingCart;
+    }
+
     public double getCartPrice() {
         return getCartPrice(this.shoppingCart);
     }
@@ -38,10 +51,6 @@ public class ShoppingCartService {
         payment.pay(cost, cred);
         cart.resetCart();
         return cost;
-    }
-
-    public ShoppingCart createCart() {
-        return new ShoppingCart();
     }
 
     public ShoppingCart addItem(Article art, int amt) {
