@@ -29,9 +29,27 @@ public class ShoppingCartService {
         return shoppingCart;
     }
 
-    public ShoppingCart newShoppingCart(){
+    public ShoppingCart newShoppingCart() {
         this.shoppingCart = createCart();
         return shoppingCart;
+    }
+
+    public ShoppingCart addItem(Article art, int amt) {
+        return addItem(this.shoppingCart, art, amt);
+    }
+
+    public ShoppingCart addItem(ShoppingCart cart, Article art, int amt) {
+        cart.addToCart(art, amt);
+        return cart;
+    }
+
+    public ShoppingCart addItems(Map<Article, Integer> contents) {
+        return addItems(this.shoppingCart, contents);
+    }
+
+    public ShoppingCart addItems(ShoppingCart cart, Map<Article, Integer> contents) {
+        contents.forEach(cart::addToCart);
+        return cart;
     }
 
     public double getCartPrice() {
@@ -51,25 +69,6 @@ public class ShoppingCartService {
         payment.pay(cost, cred);
         cart.resetCart();
         return cost;
-    }
-
-    public ShoppingCart addItem(Article art, int amt) {
-        return addItem(this.shoppingCart, art, amt);
-    }
-
-    public ShoppingCart addItem(ShoppingCart cart, Article art, int amt) {
-        cart.addToCart(art, amt);
-        return cart;
-    }
-
-
-    public ShoppingCart addItems(Map<Article, Integer> contents) {
-        return addItems(this.shoppingCart, contents);
-    }
-
-    public ShoppingCart addItems(ShoppingCart cart, Map<Article, Integer> contents) {
-        contents.forEach(cart::addToCart);
-        return cart;
     }
 
 }
