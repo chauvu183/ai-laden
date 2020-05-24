@@ -20,7 +20,7 @@ spring:
   main:
     allow-bean-definition-overriding: true
   application:
-    name: myferrybooking
+    name: laden
   mail:
     host: fakehost
     port: 587
