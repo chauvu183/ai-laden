@@ -1,15 +1,13 @@
 package com.haw.lebensmittelladen.article.domain.entities;
 
 import com.haw.lebensmittelladen.article.domain.dtos.ArticleCreateDTO;
-import com.haw.lebensmittelladen.article.domain.repositories.ArticleRepository;
-import com.haw.lebensmittelladen.article.gateways.PaymentGateway;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.persistence.*;
+import javax.transaction.Transactional;
 
 @Entity
 @Data
@@ -62,5 +60,14 @@ public class Article {
 
     public boolean enoughInStock(int needed) {
         return quantity >= needed;
+    }
+
+    //@Transactional
+    public boolean takeOutOfStock(int amount){
+        if(!enoughInStock(amount)){
+            return false;
+        }
+        this.quantity-=amount;
+        return true;
     }
 }

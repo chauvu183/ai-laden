@@ -30,4 +30,9 @@ public class ArticleNotFoundException  extends Exception {
         this.article = articleId.toString();
     }
 
+    public ArticleNotFoundException(String name) {
+        super("Article not found: "+name);
+        this.article = name;
+    }
+
 }
