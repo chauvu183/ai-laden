@@ -11,9 +11,12 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.actuate.health.Health;
 import org.springframework.boot.actuate.health.HealthIndicator;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
+import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
 import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.builders.RequestHandlerSelectors;
 import springfox.documentation.service.ApiInfo;
@@ -27,6 +30,7 @@ import java.util.Collections;
 
 @SpringBootApplication
 @EnableSwagger2
+@EnableDiscoveryClient
 public class Application {
 
     public static void main(String[] args) {
@@ -50,10 +54,17 @@ public class Application {
                 "REST API for Architecture-Course @ HAW-Hamburg",
                 "API v1",
                 "Terms of service",
-                new Contact("Stefan Sarstedt", "http://www.haw-hamburg.de/beschaeftigte/detailansicht/name/Stefan-Sarstedt.html",
-                        "stefan.sarstedt@haw-hamburg.de"),
+                new Contact("Simon Kuhnt", "",
+                        ""),
                 "MIT License", "https://opensource.org/licenses/MIT", Collections.emptyList());
     }
+
+    @Bean
+    @LoadBalanced
+    public RestTemplate restTemplate() {
+        return new RestTemplate();
+    }
+
 }
 
 @Component

@@ -6,6 +6,15 @@ management:
     mail:
       enabled: false
 ---
+eureka:
+  client:
+    registerWithEureka: true
+    fetchRegistry: true
+    serviceUrl:
+      defaultZone: http://fridge.eureka.annabales.dev:8761/eureka
+  instance:
+    preferIpAddress: true
+---
 spring:
   profiles: default, testing, production
   main:
@@ -61,4 +70,3 @@ spring:
     gcp:
       pubsub:
         enabled: false
-        

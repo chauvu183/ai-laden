@@ -1,0 +1,3 @@
+eureka:
+  instance:
+    ip-address: ${EXTERNAL_IP}
