@@ -1,17 +1,15 @@
 package com.haw.lebensmittelladen.article.api;
 
-import com.haw.lebensmittelladen.article.domain.datatypes.Barcode;
 import com.haw.lebensmittelladen.article.domain.dtos.ArticleCreateDTO;
 import com.haw.lebensmittelladen.article.domain.entities.Article;
 import com.haw.lebensmittelladen.article.domain.repositories.ArticleRepository;
 import com.haw.lebensmittelladen.article.exceptions.ArticleNotFoundException;
-import com.haw.lebensmittelladen.article.exceptions.BarcodeAlreadyExistsException;
+import com.haw.lebensmittelladen.article.exceptions.ProductAlreadyExistsException;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.annotation.Id;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -31,16 +29,16 @@ public class ArticleRestController {
         this.articleRepository = articleRepository;
     }
 
-    @ApiOperation(value = "Get a article by Id", response = Article.class)
+    @ApiOperation(value = "Get a article by name", response = Article.class)
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Successfully retrieved article"),
             @ApiResponse(code = 404, message = "Article is not found")
     })
-    @GetMapping(value = "/{barcode:[\\d]+}")
-    public Article getArticle(@PathVariable("barcode") String barcode) throws ArticleNotFoundException {
+    @GetMapping(value = "/{name:[\\d]+}")
+    public Article getArticle(@PathVariable("name") String name) throws ArticleNotFoundException {
         return articleRepository
-                .findByBarcode(new Barcode(barcode))
-                .orElseThrow(() -> ArticleNotFoundException.barcode(barcode));
+                .findByProductNameIgnoreCase(name)
+                .orElseThrow(() -> ArticleNotFoundException.productName(name));
     }
 
     @ApiOperation(value = "Get articles", response = Article.class, responseContainer = "List")
@@ -64,11 +62,11 @@ public class ArticleRestController {
     })
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public String addArticle(@Valid @RequestBody ArticleCreateDTO articleCreateDTO) throws BarcodeAlreadyExistsException {
-        if(articleRepository.findByBarcode(articleCreateDTO.getBarcode()).isPresent()){
-            throw new BarcodeAlreadyExistsException(articleCreateDTO.getBarcode().getCode());
+    public String addArticle(@Valid @RequestBody ArticleCreateDTO articleCreateDTO) throws ProductAlreadyExistsException {
+        if(articleRepository.findByProductNameIgnoreCase(articleCreateDTO.getProductName()).isPresent()){
+            throw new ProductAlreadyExistsException(articleCreateDTO.getProductName());
         }
-        return articleRepository.save(Article.of(articleCreateDTO)).getBarcode().getCode();
+        return articleRepository.save(Article.of(articleCreateDTO)).getId().toString();
     }
 
 }

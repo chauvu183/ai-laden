@@ -14,12 +14,8 @@ public class ArticleNotFoundException  extends Exception {
 
     String article;
 
-    public static ArticleNotFoundException barcode(String barcode){
-        return new ArticleNotFoundException(String.format(exceptionBasis + " barcode: %s.", barcode), barcode);
-    }
-
-    public static ArticleNotFoundException productName(String barcode){
-        return new ArticleNotFoundException(String.format(exceptionBasis + " Product Name: %s.", barcode), barcode);
+    public static ArticleNotFoundException productName(String name){
+        return new ArticleNotFoundException(String.format(exceptionBasis + " Product Name: %s.", name), name);
     }
 
     private ArticleNotFoundException(String errorMessage, String article) {

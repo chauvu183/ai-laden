@@ -1,11 +1,13 @@
 package com.haw.lebensmittelladen.article.domain.entities;
 
-import com.haw.lebensmittelladen.article.domain.datatypes.Barcode;
 import com.haw.lebensmittelladen.article.domain.dtos.ArticleCreateDTO;
+import com.haw.lebensmittelladen.article.domain.repositories.ArticleRepository;
+import com.haw.lebensmittelladen.article.gateways.PaymentGateway;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.persistence.*;
 
@@ -14,11 +16,12 @@ import javax.persistence.*;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class Article {
 
-    //@Column(unique=true) //barcodes are essentially links to some place thus no reason to make them unique
-    @ApiModelProperty(required = true)
     @Id
-    private Barcode barcode;
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Long id;
 
+    //todo: constraint lowercase
+    @Column(unique = true, nullable = false, length = 100)
     @ApiModelProperty(required = true)
     private String productName;
 
@@ -36,8 +39,7 @@ public class Article {
     @ApiModelProperty(required = true)
     private int quantity;
 
-    public Article(Barcode barcode, String productName, String productFullName, String company, double price, int quantity) {
-        this.barcode = barcode;
+    public Article(String productName, String productFullName, String company, double price, int quantity) {
         this.productName = productName;
         this.productFullName = productFullName;
         this.company = company;
@@ -46,8 +48,7 @@ public class Article {
     }
 
     public static Article of(ArticleCreateDTO articleCreateDTO) {
-        Barcode bar = articleCreateDTO.getBarcode();
-        return new Article(bar != null && Barcode.isValid(bar.getCode()) ? bar : new Barcode(),
+        return new Article(
                 articleCreateDTO.getProductName(),
                 articleCreateDTO.getProductFullName(),
                 articleCreateDTO.getCompany(),

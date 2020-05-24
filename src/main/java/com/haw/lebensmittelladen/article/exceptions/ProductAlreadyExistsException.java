@@ -8,12 +8,12 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 @Value
 @ResponseStatus(HttpStatus.BAD_REQUEST)
 @EqualsAndHashCode(callSuper = false)
-public class BarcodeAlreadyExistsException extends Exception{
-    String barcode;
+public class ProductAlreadyExistsException extends Exception{
+    String productName;
 
-    public BarcodeAlreadyExistsException(String barcode) {
-        super(String.format( "Barcode Already Exists %s", barcode));
+    public ProductAlreadyExistsException(String productName) {
+        super(String.format( "Productname Already Exists %s", productName));
 
-        this.barcode = barcode;
+        this.productName = productName;
     }
 }
