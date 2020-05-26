@@ -9,7 +9,8 @@ public class BankPaymentGateway implements PaymentGateway {
 
     @Override
     public void pay(double amount, String iban) throws PaymentProviderException {
+        throw new PaymentProviderException("not implemented");
         //TODO
-        return;
+        //return;
     }
 }

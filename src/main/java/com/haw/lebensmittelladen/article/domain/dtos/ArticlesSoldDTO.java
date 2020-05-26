@@ -1,26 +1,26 @@
 package com.haw.lebensmittelladen.article.domain.dtos;
 
-import com.haw.lebensmittelladen.article.util.constraints.ProductNameConstraint;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.validation.constraints.Positive;
-import javax.validation.constraints.Size;
+import java.util.List;
 
 @Data
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @AllArgsConstructor
-public class ArticleBuyDTO {
+public class ArticlesSoldDTO {
 
     @ApiModelProperty(required = true)
-    @Size(min = 1, max = 50)
-    @ProductNameConstraint
-    private String productFullName;
+    private List<ArticleSoldDTO> articles;
 
     @ApiModelProperty(required = true)
-    @Positive
-    private int amount;
+    private double totalPrice;
+
+    public boolean sanityCheck(){
+        double accPrices = articles.stream().map(a -> a.getCumulatedPrice()).reduce( (i,acc) -> i+acc).get();
+        return accPrices == totalPrice;
+    }
 }

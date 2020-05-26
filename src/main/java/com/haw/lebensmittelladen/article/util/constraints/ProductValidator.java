@@ -17,6 +17,6 @@ public class ProductValidator implements ConstraintValidator<ProductNameConstrai
 
     @Override
     public boolean isValid(String value, ConstraintValidatorContext context) {
-        return articles.findByProductNameIgnoreCase(value).isPresent();
+        return articles.findByProductFullNameIgnoreCase(value).isPresent();
     }
 }

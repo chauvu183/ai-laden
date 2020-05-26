@@ -10,11 +10,12 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 @ResponseStatus(HttpStatus.BAD_REQUEST)
 @EqualsAndHashCode(callSuper = false)
 public class PaymentProviderException extends Exception {
+    static final String DEFAULT = "Payment could not be executed. ";
 
-    private final ArticlesBuyDTO articlesBuyDTO;
+    private final String message;
 
-    public PaymentProviderException(ArticlesBuyDTO articlesBuyDTO) {
-        super(String.format("Payment could not be executed."));
-        this.articlesBuyDTO = articlesBuyDTO;
+    public PaymentProviderException(String message) {
+        super(DEFAULT+message);
+        this.message = DEFAULT+message;
     }
 }

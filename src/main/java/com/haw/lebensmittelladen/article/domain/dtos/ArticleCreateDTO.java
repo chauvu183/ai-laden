@@ -6,10 +6,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
+import javax.persistence.Column;
+import javax.validation.constraints.*;
 
 @Data
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -25,11 +23,23 @@ public class ArticleCreateDTO {
     @NotNull
     private String productFullName;
 
+    //Gramm, Piece, Milliliter (gr,pc,ml)
+    @ApiModelProperty(required = true)
+    @NotNull
+    private String productSizeUnit;
+
+    @ApiModelProperty(required = true)
+    @NotNull
+    @Positive
+    private int productSize;
+
     @ApiModelProperty()
+    @Size(min = 1, max = 50)
     private String company;
 
     @ApiModelProperty(required = true)
     @NotNull
+    @PositiveOrZero
     private Double price;
 
     @ApiModelProperty(required = true)

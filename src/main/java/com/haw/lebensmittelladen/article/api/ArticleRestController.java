@@ -2,9 +2,11 @@ package com.haw.lebensmittelladen.article.api;
 
 import com.haw.lebensmittelladen.article.domain.dtos.ArticleCreateDTO;
 import com.haw.lebensmittelladen.article.domain.dtos.ArticlesBuyDTO;
+import com.haw.lebensmittelladen.article.domain.dtos.ArticlesSoldDTO;
 import com.haw.lebensmittelladen.article.domain.entities.Article;
 import com.haw.lebensmittelladen.article.domain.repositories.ArticleRepository;
 import com.haw.lebensmittelladen.article.exceptions.ArticleNotFoundException;
+import com.haw.lebensmittelladen.article.exceptions.ArticlesOutOfStockException;
 import com.haw.lebensmittelladen.article.exceptions.PaymentProviderException;
 import com.haw.lebensmittelladen.article.exceptions.ProductAlreadyExistsException;
 import com.haw.lebensmittelladen.article.services.PaymentService;
@@ -51,7 +53,7 @@ public class ArticleRestController {
 
     @ApiOperation(value = "Get articles", response = Article.class, responseContainer = "List")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Successfully retrieved bookings"),
+            @ApiResponse(code = 200, message = "Successfully retrieved articles"),
     })
     @GetMapping
     public List<Article> getArticles(@RequestParam(value = "productName", required = false, defaultValue = "") String productName) throws ArticleNotFoundException {
@@ -71,7 +73,7 @@ public class ArticleRestController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public String addArticle(@Valid @RequestBody ArticleCreateDTO articleCreateDTO) throws ProductAlreadyExistsException {
-        if(articleRepository.findByProductNameIgnoreCase(articleCreateDTO.getProductName()).isPresent()){
+        if(articleRepository.findByProductFullNameIgnoreCase(articleCreateDTO.getProductFullName()).isPresent()){
             throw new ProductAlreadyExistsException(articleCreateDTO.getProductName());
         }
         return articleRepository.save(Article.of(articleCreateDTO)).getId().toString();
@@ -79,21 +81,20 @@ public class ArticleRestController {
 
     @ApiOperation(value = "Buy a set of articles")
     @ApiResponses(value = {
-            @ApiResponse(code = 201, message = "Successfully bought all articles"),
+            @ApiResponse(code = 200, message = "Successfully bought all articles"),
     })
     @PostMapping(value = "/buy")
-    @ResponseStatus(HttpStatus.ACCEPTED)
-    public double buyArticles(@Valid @RequestBody ArticlesBuyDTO articlesBuyDTO) throws ProductAlreadyExistsException, ArticleNotFoundException, PaymentProviderException {
+    @ResponseStatus(HttpStatus.OK)
+    public ArticlesSoldDTO buyArticles(@Valid @RequestBody ArticlesBuyDTO articlesBuyDTO) throws ArticleNotFoundException, PaymentProviderException, ArticlesOutOfStockException {
         List<String> productsOutOfStockNames = articlesBuyDTO.getArticles().stream()
-                .filter(a -> articleRepository
-                        .findByProductNameIgnoreCase(a.getName()).get().enoughInStock(a.getAmount()))
-                .map( aO -> aO.getName() ).collect(Collectors.toList());
+                .filter(a -> !articleRepository
+                        .findByProductFullNameIgnoreCase(a.getProductFullName()).get().enoughInStock(a.getAmount()))
+                .map( aO -> aO.getProductFullName() ).collect(Collectors.toList());
 
         if(!productsOutOfStockNames.isEmpty()){
-            throw new ProductAlreadyExistsException(formatArticlesNameList(productsOutOfStockNames));
+            throw new ArticlesOutOfStockException(formatArticlesNameList(productsOutOfStockNames));
         }
-        double price = paymentService.payForProducts(articlesBuyDTO);
-        return price;
+        return paymentService.payForProducts(articlesBuyDTO);
     }
 
 }
