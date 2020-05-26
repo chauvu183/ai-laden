@@ -1,5 +1,6 @@
 package com.haw.lebensmittelladen.article.domain.dtos;
 
+import com.haw.lebensmittelladen.article.util.constraints.ProductUnitTypeConstraint;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -26,6 +27,7 @@ public class ArticleCreateDTO {
     //Gramm, Piece, Milliliter (gr,pc,ml)
     @ApiModelProperty(required = true)
     @NotNull
+    @ProductUnitTypeConstraint
     private String productSizeUnit;
 
     @ApiModelProperty(required = true)
