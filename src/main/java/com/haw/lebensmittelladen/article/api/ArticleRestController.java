@@ -47,7 +47,7 @@ public class ArticleRestController {
     @GetMapping(value = "/{name:[\\d]+}")
     public Article getArticle(@PathVariable("name") String name) throws ArticleNotFoundException {
         return articleRepository
-                .findByProductNameIgnoreCase(name)
+                .findByProductFullNameIgnoreCase(name)
                 .orElseThrow(() -> ArticleNotFoundException.productName(name));
     }
 
@@ -56,19 +56,28 @@ public class ArticleRestController {
             @ApiResponse(code = 200, message = "Successfully retrieved articles"),
     })
     @GetMapping
-    public List<Article> getArticles(@RequestParam(value = "productName", required = false, defaultValue = "") String productName) throws ArticleNotFoundException {
+    public List<Article> getArticles(@RequestParam(value = "productName", required = false, defaultValue = "") String productName) {
         if (productName.isBlank()) {
             return articleRepository.findAll();
         } else {
-            return Collections.singletonList(articleRepository
-                    .findByProductNameIgnoreCase(productName)
-                    .orElseThrow(() -> ArticleNotFoundException.productName(productName)));
+            return articleRepository.findAllByProductNameIgnoreCase(productName);
         }
+    }
+
+    @ApiOperation(value = "Get a article-categories", response = String.class, responseContainer = "List")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Successfully retrieved categories"),
+    })
+    @GetMapping(value = "/categories")
+    public List<String> getProductNames() {
+        return articleRepository.findDistinctByProductName().stream().map( a -> a.getProductName()).collect(Collectors.toList());
     }
 
     @ApiOperation(value = "Create an article")
     @ApiResponses(value = {
             @ApiResponse(code = 201, message = "Successfully created article"),
+            @ApiResponse(code = 400, message = "productFullName already exists"),
+            @ApiResponse(code = 400, message = "invalid parameter")
     })
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
@@ -79,9 +88,11 @@ public class ArticleRestController {
         return articleRepository.save(Article.of(articleCreateDTO)).getId().toString();
     }
 
-    @ApiOperation(value = "Buy a set of articles")
+    @ApiOperation(value = "Buy a set of articles", response = ArticlesSoldDTO.class)
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Successfully bought all articles"),
+            @ApiResponse(code = 404, message = "articles not found"),
+            @ApiResponse(code = 400, message = "invalid parameter"),
     })
     @PostMapping(value = "/buy")
     @ResponseStatus(HttpStatus.OK)
