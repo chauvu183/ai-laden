@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 @Value
 @ResponseStatus(HttpStatus.NOT_FOUND)
 @EqualsAndHashCode(callSuper = false)
-public class ArticleNotFoundException  extends Exception {
+public class ArticleNotFoundException extends Exception {
 
     private static String exceptionBasis = "Could not find an article with the";
 

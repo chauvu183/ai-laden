@@ -1,5 +1,6 @@
 package com.haw.lebensmittelladen.article.api;
 
+import com.haw.lebensmittelladen.article.domain.dtos.ArticleBuyDTO;
 import com.haw.lebensmittelladen.article.domain.dtos.ArticleCreateDTO;
 import com.haw.lebensmittelladen.article.domain.dtos.ArticlesBuyDTO;
 import com.haw.lebensmittelladen.article.domain.dtos.ArticlesSoldDTO;
@@ -19,8 +20,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static com.haw.lebensmittelladen.article.exceptions.ArticlesOutOfStockException.formatArticlesNameList;
@@ -44,7 +45,7 @@ public class ArticleRestController {
             @ApiResponse(code = 200, message = "Successfully retrieved article"),
             @ApiResponse(code = 404, message = "Article is not found")
     })
-    @GetMapping(value = "/{name:[\\d]+}")
+    @GetMapping(value = "/{name}")
     public Article getArticle(@PathVariable("name") String name) throws ArticleNotFoundException {
         return articleRepository
                 .findByProductFullNameIgnoreCase(name)
@@ -70,7 +71,7 @@ public class ArticleRestController {
     })
     @GetMapping(value = "/categories")
     public List<String> getProductNames() {
-        return articleRepository.findDistinctByProductName().stream().map( a -> a.getProductName()).collect(Collectors.toList());
+        return articleRepository.findAll().stream().map(Article::getProductName).distinct().collect(Collectors.toList());
     }
 
     @ApiOperation(value = "Create an article")
@@ -82,8 +83,8 @@ public class ArticleRestController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public String addArticle(@Valid @RequestBody ArticleCreateDTO articleCreateDTO) throws ProductAlreadyExistsException {
-        if(articleRepository.findByProductFullNameIgnoreCase(articleCreateDTO.getProductFullName()).isPresent()){
-            throw new ProductAlreadyExistsException(articleCreateDTO.getProductName());
+        if (articleRepository.findByProductFullNameIgnoreCase(articleCreateDTO.getProductFullName()).isPresent()) {
+            throw new ProductAlreadyExistsException(articleCreateDTO.getProductFullName());
         }
         return articleRepository.save(Article.of(articleCreateDTO)).getId().toString();
     }
@@ -96,13 +97,34 @@ public class ArticleRestController {
     })
     @PostMapping(value = "/buy")
     @ResponseStatus(HttpStatus.OK)
-    public ArticlesSoldDTO buyArticles(@Valid @RequestBody ArticlesBuyDTO articlesBuyDTO) throws ArticleNotFoundException, PaymentProviderException, ArticlesOutOfStockException {
-        List<String> productsOutOfStockNames = articlesBuyDTO.getArticles().stream()
-                .filter(a -> !articleRepository
-                        .findByProductFullNameIgnoreCase(a.getProductFullName()).get().enoughInStock(a.getAmount()))
-                .map( aO -> aO.getProductFullName() ).collect(Collectors.toList());
+    public ArticlesSoldDTO buyArticles(@Valid @RequestBody ArticlesBuyDTO articlesBuyDTO) throws ArticlesOutOfStockException, PaymentProviderException, ArticleNotFoundException {
+        /*List<String> productsOutOfStockNames = articlesBuyDTO.getArticles().stream()
+                .filter(a -> !articleRepository.findByProductFullNameIgnoreCase(a.getProductFullName())
+                        .get()
+                        .enoughInStock(a.getAmount()))
+                .map(ArticleBuyDTO::getProductFullName).collect(Collectors.toList());*/
+        List<Article> articles =
+                articleRepository.findByProductFullNames(
+                        articlesBuyDTO
+                                .getArticles()
+                                .stream()
+                                .map(ArticleBuyDTO::getProductFullName)
+                                .collect(Collectors.toList())
+                );
 
-        if(!productsOutOfStockNames.isEmpty()){
+        Map<String, Article> articleMap = articles.stream().collect(Collectors.toMap(Article::getProductFullName, a -> a));
+
+        for (ArticleBuyDTO buyArticle : articlesBuyDTO.getArticles()) {
+            if (!articleMap.containsKey(buyArticle.getProductFullName())) {
+                ArticleNotFoundException.productName(buyArticle.getProductFullName());
+            }
+        }
+
+        List<String> productsOutOfStockNames = articlesBuyDTO.getArticles().stream()
+                .filter(buyArticle -> articleMap.get(buyArticle.getProductFullName()).enoughInStock(buyArticle.getAmount()))
+                .map(ArticleBuyDTO::getProductFullName).collect(Collectors.toList());
+
+        if (!productsOutOfStockNames.isEmpty()) {
             throw new ArticlesOutOfStockException(formatArticlesNameList(productsOutOfStockNames));
         }
         return paymentService.payForProducts(articlesBuyDTO);
