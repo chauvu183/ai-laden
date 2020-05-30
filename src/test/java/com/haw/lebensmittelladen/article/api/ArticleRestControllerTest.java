@@ -202,7 +202,7 @@ class ArticleRestControllerTest {
                 post("/articles/buy").
                 then().
                 statusCode(HttpStatus.OK.value()).
-                body("totalPrice", Matchers.equalTo(1.55f));
+                body("totalPrice", Matchers.equalTo(1.55f+2.44f));
 
         Optional<Article> boughtItemOptional1 = articleRepository.findByProductFullNameIgnoreCase(articleBuy1.getProductFullName());
         Assert.isTrue(boughtItemOptional1.isPresent(), "Product not found");

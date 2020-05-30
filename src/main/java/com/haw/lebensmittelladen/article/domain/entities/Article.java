@@ -71,7 +71,7 @@ public class Article {
                 articleCreateDTO.getProductSize(),
                 articleCreateDTO.getCompany(),
                 articleCreateDTO.getPrice(),
-                articleCreateDTO.getQuantity());
+                null==articleCreateDTO.getQuantity()?0:articleCreateDTO.getQuantity());
     }
 
     public boolean isAvailable() {

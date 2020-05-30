@@ -44,7 +44,7 @@ public class ArticleCreateDTO {
     @PositiveOrZero
     private Double price;
 
-    @ApiModelProperty(required = true)
+    @ApiModelProperty(required = false)
     @NotNull
     @Min(0)
     @Max(Integer.MAX_VALUE)

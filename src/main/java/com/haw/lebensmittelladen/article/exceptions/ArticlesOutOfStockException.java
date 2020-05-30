@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import java.util.List;
 
 @Value
-@ResponseStatus(HttpStatus.NOT_FOUND)
+@ResponseStatus(HttpStatus.BAD_REQUEST)
 @EqualsAndHashCode(callSuper = false)
 public class ArticlesOutOfStockException extends Exception {
 
