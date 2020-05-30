@@ -49,4 +49,9 @@ public class ArticleCreateDTO {
     @Min(0)
     @Max(Integer.MAX_VALUE)
     private Integer quantity;
+
+    @Override
+    public String toString(){
+        return productName+","+productFullName+","+productSizeUnit+","+productSize+","+company+","+price+","+quantity;
+    }
 }
