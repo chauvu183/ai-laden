@@ -52,6 +52,7 @@ public class ArticleCreateDTO {
 
     @Override
     public String toString(){
-        return productName+","+productFullName+","+productSizeUnit+","+productSize+","+company+","+price+","+quantity;
+        String seperator = " | ";
+        return productName+seperator+productFullName+seperator+productSizeUnit+seperator+productSize+seperator+company+seperator+price+seperator+quantity;
     }
 }
