@@ -1,55 +1,74 @@
 package com.haw.lebensmittelladen.article.domain.entities;
 
-import com.haw.lebensmittelladen.article.domain.datatypes.Barcode;
 import com.haw.lebensmittelladen.article.domain.dtos.ArticleCreateDTO;
+import com.haw.lebensmittelladen.article.domain.repositories.ArticleRepository;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+
 
 import javax.persistence.*;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 
 @Entity
 @Data
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class Article {
 
-    //@Column(unique=true) //barcodes are essentially links to some place thus no reason to make them unique
-    @ApiModelProperty(required = true)
     @Id
-    private Barcode barcode;
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Long id;
 
+    //todo: constraint lowercase
+    @Column(nullable = false, length = 100)
     @ApiModelProperty(required = true)
     private String productName;
 
+    @Column(unique = true, nullable = false, length = 100)
     @ApiModelProperty(required = true)
     private String productFullName;
+
+    //Gramm, Piece, Milliliter (gr,pc,ml)
+    @Column(nullable = false, length = 2)
+    @ApiModelProperty(required = true)
+    private String productSizeUnit;
+
+    @ApiModelProperty(required = true)
+    @Column(nullable = false)
+    @Positive
+    private int productSize;
 
     @ApiModelProperty()
     private String company;
 
-    //TODO: currency? format?
     @ApiModelProperty(required = true)
+    @Column(nullable = false)
+    @PositiveOrZero
     private double price;
 
-    //TODO: quantity > 0
     @ApiModelProperty(required = true)
+    @PositiveOrZero
     private int quantity;
 
-    public Article(Barcode barcode, String productName, String productFullName, String company, double price, int quantity) {
-        this.barcode = barcode;
+    public Article(String productName, String productFullName, String productSizeUnit, int productSize, String company, double price, int quantity) {
         this.productName = productName;
         this.productFullName = productFullName;
+        this.productSizeUnit = productSizeUnit;
+        this.productSize = productSize;
         this.company = company;
         this.price = price;
         this.quantity = quantity;
     }
 
     public static Article of(ArticleCreateDTO articleCreateDTO) {
-        Barcode bar = articleCreateDTO.getBarcode();
-        return new Article(bar != null && Barcode.isValid(bar.getCode()) ? bar : new Barcode(),
+        return new Article(
                 articleCreateDTO.getProductName(),
                 articleCreateDTO.getProductFullName(),
+                articleCreateDTO.getProductSizeUnit(),
+                articleCreateDTO.getProductSize(),
                 articleCreateDTO.getCompany(),
                 articleCreateDTO.getPrice(),
                 articleCreateDTO.getQuantity());
@@ -61,5 +80,13 @@ public class Article {
 
     public boolean enoughInStock(int needed) {
         return quantity >= needed;
+    }
+
+    public boolean takeOutOfStock(int amount){
+        if(!enoughInStock(amount)){
+            return false;
+        }
+        this.quantity-=amount;
+        return true;
     }
 }

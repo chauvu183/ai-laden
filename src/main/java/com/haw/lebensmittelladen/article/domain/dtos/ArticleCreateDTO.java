@@ -1,40 +1,47 @@
 package com.haw.lebensmittelladen.article.domain.dtos;
 
-import com.haw.lebensmittelladen.article.domain.datatypes.Barcode;
+import com.haw.lebensmittelladen.article.util.constraints.ProductUnitTypeConstraint;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.NotFound;
 
-import javax.validation.Valid;
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
+import javax.persistence.Column;
+import javax.validation.constraints.*;
 
 @Data
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @AllArgsConstructor
 public class ArticleCreateDTO {
 
-    @ApiModelProperty()
-    private Barcode barcode;
-
     @ApiModelProperty(required = true)
     @NotNull
+    @Size(min = 1, max = 20)
     private String productName;
 
     @ApiModelProperty(required = true)
     @NotNull
     private String productFullName;
 
+    //Gramm, Piece, Milliliter (gr,pc,ml)
+    @ApiModelProperty(required = true)
+    @NotNull
+    @ProductUnitTypeConstraint
+    private String productSizeUnit;
+
+    @ApiModelProperty(required = true)
+    @NotNull
+    @Positive
+    private int productSize;
+
     @ApiModelProperty()
+    @Size(min = 1, max = 50)
     private String company;
 
     @ApiModelProperty(required = true)
     @NotNull
+    @PositiveOrZero
     private Double price;
 
     @ApiModelProperty(required = true)

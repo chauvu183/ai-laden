@@ -1,6 +1,5 @@
 package com.haw.lebensmittelladen;
 
-import com.haw.lebensmittelladen.article.domain.datatypes.Barcode;
 import com.haw.lebensmittelladen.article.domain.datatypes.Email;
 import com.haw.lebensmittelladen.article.domain.entities.Article;
 import com.haw.lebensmittelladen.article.domain.repositories.ArticleRepository;
@@ -84,7 +83,7 @@ class PopulateTestDataRunner implements CommandLineRunner {
         Arrays.asList(
                 "Tomate,Gurke,Erbse".split(","))
                 .forEach(
-                        name -> articleRepository.save(new Article(new Barcode(), name, "Edeka Bio " + name, "Edeka", 1.55, 2))
+                        name -> articleRepository.save(new Article(name, "Edeka Bio " + name, "gr",500,"Edeka", 1.55, 2))
                 );
         System.out.println(articleRepository.findAll());
     }
