@@ -177,7 +177,7 @@ class ArticleRestControllerTest {
         given().body(request).contentType(ContentType.JSON).
                 when().
                 post("/articles/buy").
-                then().
+                then().log().all().
                 statusCode(HttpStatus.OK.value()).
                 body("totalPrice", Matchers.equalTo(1.55f));
 
