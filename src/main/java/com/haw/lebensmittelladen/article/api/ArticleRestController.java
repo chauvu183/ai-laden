@@ -113,7 +113,6 @@ public class ArticleRestController {
                 );
 
         Map<String, Article> articleMap = articles.stream().collect(Collectors.toMap(Article::getProductFullName, a -> a));
-
         for (ArticleBuyDTO buyArticle : articlesBuyDTO.getArticles()) {
             if (!articleMap.containsKey(buyArticle.getProductFullName())) {
                 ArticleNotFoundException.productName(buyArticle.getProductFullName());
@@ -121,7 +120,7 @@ public class ArticleRestController {
         }
 
         List<String> productsOutOfStockNames = articlesBuyDTO.getArticles().stream()
-                .filter(buyArticle -> articleMap.get(buyArticle.getProductFullName()).enoughInStock(buyArticle.getAmount()))
+                .filter(buyArticle -> !articleMap.get(buyArticle.getProductFullName()).enoughInStock(buyArticle.getAmount()))
                 .map(ArticleBuyDTO::getProductFullName).collect(Collectors.toList());
 
         if (!productsOutOfStockNames.isEmpty()) {
