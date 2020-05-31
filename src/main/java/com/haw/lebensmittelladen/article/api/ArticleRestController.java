@@ -92,6 +92,7 @@ public class ArticleRestController {
             @ApiResponse(code = 200, message = "Successfully bought all articles"),
             @ApiResponse(code = 404, message = "articles not found"),
             @ApiResponse(code = 400, message = "invalid parameter"),
+            @ApiResponse(code = 502, message = "Payment transaction failed")
     })
     @PostMapping(value = "/buy")
     @ResponseStatus(HttpStatus.OK)

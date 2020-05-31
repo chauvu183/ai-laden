@@ -7,7 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 @Value
-@ResponseStatus(HttpStatus.BAD_REQUEST)
+@ResponseStatus(HttpStatus.BAD_GATEWAY)
 @EqualsAndHashCode(callSuper = false)
 public class PaymentProviderException extends Exception {
     static final String DEFAULT = "Payment could not be executed. ";

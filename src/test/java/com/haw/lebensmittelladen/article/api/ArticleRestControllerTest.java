@@ -273,10 +273,9 @@ class ArticleRestControllerTest {
         //toDo why? assertEquals(article.getQuantity(), boughtItemOptional1.get().getQuantity(), "items did not get deleted from database");
     }
 
-    /*@Test
+    //@Test
     void buyArticlePayFailRollback() throws PaymentProviderException {
         Mockito.doThrow(new PaymentProviderException("error")).when(bankPaymentGateway).pay(Mockito.anyDouble(), Mockito.anyString());
-
 
         ArticleBuyDTO articleBuy1 = new ArticleBuyDTO(article.getProductFullName(), 1);
         ArticleBuyBankDTO bank = new ArticleBuyBankDTO(testIban);
@@ -293,6 +292,6 @@ class ArticleRestControllerTest {
         Optional<Article> boughtItemOptional1 = articleRepository.findByProductFullNameIgnoreCase(articleBuy1.getProductFullName());
         Assert.isTrue(boughtItemOptional1.isPresent(), "Product not found");
         assertEquals(article.getQuantity(), boughtItemOptional1.get().getQuantity(), "items did not get deleted from database");
-    }*/
+    }
 
 }
