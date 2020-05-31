@@ -15,9 +15,9 @@ import java.util.List;
 
 @Service
 public class BankPaymentGateway implements PaymentGateway {
-    private static final String PASSWORD = "12345";
+    private static final String PASSWORD = "test";
     private static final String HOST = "http://bankservice";
-    private String myIban = "DE75512108001245126199";
+    private String myIban = "DE48794319732728991292";
 
     @Autowired
     RestTemplate restTemplate;

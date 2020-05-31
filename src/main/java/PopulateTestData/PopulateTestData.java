@@ -14,7 +14,7 @@ import java.util.List;
 public class PopulateTestData {
 
     public static void main(String[] args) {
-        String host = "http://127.0.0.1:8080" ;
+        String host = "http://34.107.46.200:8080" ;
 
         List<ArticleCreateDTO> articlesToCreate = new ArrayList<>();
         articlesToCreate.add(new ArticleCreateDTO("banana","Edeka Bio Banane","pc", 1, "Edeka", 0.70, 100));
