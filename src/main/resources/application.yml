@@ -44,7 +44,7 @@ spring:
     database: MYSQL
     generate-ddl: true
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: update #create-drop
     properties:
       hibernate:
         show_sql: false
