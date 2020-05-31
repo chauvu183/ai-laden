@@ -5,6 +5,11 @@ management:
   health:
     mail:
       enabled: false
+logging:
+  level:
+    root: ERROR
+    org.springframework.web: DEBUG
+    org.hibernate: ERROR
 ---
 eureka:
   client:
