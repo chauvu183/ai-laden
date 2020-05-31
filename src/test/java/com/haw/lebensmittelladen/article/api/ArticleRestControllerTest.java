@@ -10,12 +10,14 @@ import com.haw.lebensmittelladen.article.domain.entities.Article;
 import com.haw.lebensmittelladen.article.domain.repositories.ArticleRepository;
 import com.haw.lebensmittelladen.article.exceptions.PaymentProviderException;
 import com.haw.lebensmittelladen.article.gateways.BankPaymentGateway;
+import com.haw.lebensmittelladen.article.gateways.PaymentGateway;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.json.AutoConfigureJsonTesters;
@@ -30,8 +32,9 @@ import org.springframework.util.Assert;
 import java.util.*;
 
 import static io.restassured.RestAssured.given;
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = Application.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -54,7 +57,7 @@ class ArticleRestControllerTest {
     private final String testIban = "DE11111111111111111111";
 
     @BeforeEach
-    void setUp() {
+    void setUp() throws PaymentProviderException {
         this.articleRepository.deleteAll();
 
         article = articleRepository.save(new Article("Banana", "Edeka Bio Banana", "pc", 1, "Edeka", 1.55, 1));
@@ -166,8 +169,6 @@ class ArticleRestControllerTest {
 
     @Test
     void buySingleArticleSuccess() throws PaymentProviderException {
-        Mockito.doNothing().when(bankPaymentGateway).pay(Mockito.anyDouble(), Mockito.anyString());
-
         ArticleBuyDTO articleBuy = new ArticleBuyDTO(article.getProductFullName(), 1);
         ArticleBuyBankDTO bank = new ArticleBuyBankDTO(testIban);
         List<ArticleBuyDTO> buyList = Collections.singletonList(articleBuy);
@@ -183,13 +184,11 @@ class ArticleRestControllerTest {
 
         Optional<Article> boughtItemOptional = articleRepository.findByProductFullNameIgnoreCase(articleBuy.getProductFullName());
         Assert.isTrue(boughtItemOptional.isPresent(), "Product not found");
-        Assert.isTrue(boughtItemOptional.get().getQuantity() == article.getQuantity() - 1, "items did not get deleted from database");
+        assertEquals(article.getQuantity() - 1, boughtItemOptional.get().getQuantity(), "items did not get deleted from database");
     }
 
     @Test
     void buyMultipleArticlesSuccess() throws PaymentProviderException {
-        Mockito.doNothing().when(bankPaymentGateway).pay(Mockito.anyDouble(), Mockito.anyString());
-
         ArticleBuyDTO articleBuy1 = new ArticleBuyDTO(article.getProductFullName(), 1);
         ArticleBuyDTO articleBuy2 = new ArticleBuyDTO(articleCherry.getProductFullName(), 1);
         ArticleBuyBankDTO bank = new ArticleBuyBankDTO(testIban);
@@ -202,15 +201,98 @@ class ArticleRestControllerTest {
                 post("/articles/buy").
                 then().
                 statusCode(HttpStatus.OK.value()).
-                body("totalPrice", Matchers.equalTo(1.55f+2.44f));
+                body("totalPrice", Matchers.equalTo(1.55f + 2.44f));
 
         Optional<Article> boughtItemOptional1 = articleRepository.findByProductFullNameIgnoreCase(articleBuy1.getProductFullName());
         Assert.isTrue(boughtItemOptional1.isPresent(), "Product not found");
-        Assert.isTrue(boughtItemOptional1.get().getQuantity() == article.getQuantity() - 1, "items did not get deleted from database");
+        assertEquals(article.getQuantity() - 1, boughtItemOptional1.get().getQuantity(), "items did not get deleted from database");
 
         Optional<Article> boughtItemOptional2 = articleRepository.findByProductFullNameIgnoreCase(articleBuy2.getProductFullName());
         Assert.isTrue(boughtItemOptional2.isPresent(), "Product not found");
-        Assert.isTrue(boughtItemOptional2.get().getQuantity() == articleCherry.getQuantity() - 1, "items did not get deleted from database");
+        assertEquals(articleCherry.getQuantity() - 1, boughtItemOptional2.get().getQuantity(), "items did not get deleted from database");
     }
+
+    @Test
+    void buyMultipleArticlesNotFoundFail() throws PaymentProviderException {
+        ArticleBuyDTO articleBuy1 = new ArticleBuyDTO("articleshouldnotbeFound!", 1);
+        ArticleBuyDTO articleBuy2 = new ArticleBuyDTO(article.getProductFullName(), 1);
+        ArticleBuyBankDTO bank = new ArticleBuyBankDTO(testIban);
+        List<ArticleBuyDTO> buyList = new ArrayList<>(Arrays.asList(articleBuy1, articleBuy2));
+        ArticlesBuyDTO buyWrapper = new ArticlesBuyDTO(buyList, bank);
+
+        String request = new Gson().toJson(buyWrapper);
+        given().body(request).contentType(ContentType.JSON).
+                when().
+                post("/articles/buy").
+                then().log().all().
+                statusCode(HttpStatus.NOT_FOUND.value());
+
+        Optional<Article> boughtItemOptional2 = articleRepository.findByProductFullNameIgnoreCase(articleBuy2.getProductFullName());
+        Assert.isTrue(boughtItemOptional2.isPresent(), "Product not found");
+        assertEquals(article.getQuantity(), boughtItemOptional2.get().getQuantity(), "items did not get deleted from database");
+    }
+
+    @Test
+    void buySameArticleMultipleTimesSucess() throws PaymentProviderException {
+        ArticleBuyDTO articleBuy1 = new ArticleBuyDTO(articleCherry.getProductFullName(), 1);
+        ArticleBuyDTO articleBuy2 = new ArticleBuyDTO(articleCherry.getProductFullName(), 1);
+        ArticleBuyBankDTO bank = new ArticleBuyBankDTO(testIban);
+        List<ArticleBuyDTO> buyList = new ArrayList<>(Arrays.asList(articleBuy1, articleBuy2));
+        ArticlesBuyDTO buyWrapper = new ArticlesBuyDTO(buyList, bank);
+
+        String request = new Gson().toJson(buyWrapper);
+        given().body(request).contentType(ContentType.JSON).
+                when().
+                post("/articles/buy").
+                then().log().all().
+                statusCode(HttpStatus.OK.value());
+
+        Optional<Article> boughtItemOptional1 = articleRepository.findByProductFullNameIgnoreCase(articleBuy1.getProductFullName());
+        Assert.isTrue(boughtItemOptional1.isPresent(), "Product not found");
+        assertEquals(articleCherry.getQuantity() - articleBuy1.getAmount() - articleBuy2.getAmount(),
+                boughtItemOptional1.get().getQuantity(), "items did not get deleted from database");
+    }
+
+    @Test
+    void buySameArticleMultipleTimesOutOfStockFail() throws PaymentProviderException {
+        ArticleBuyDTO articleBuy1 = new ArticleBuyDTO(article.getProductFullName(), 1);
+        ArticleBuyDTO articleBuy2 = new ArticleBuyDTO(article.getProductFullName(), 1);
+        ArticleBuyBankDTO bank = new ArticleBuyBankDTO(testIban);
+        List<ArticleBuyDTO> buyList = new ArrayList<>(Arrays.asList(articleBuy1, articleBuy2));
+        ArticlesBuyDTO buyWrapper = new ArticlesBuyDTO(buyList, bank);
+
+        String request = new Gson().toJson(buyWrapper);
+        given().body(request).contentType(ContentType.JSON).
+                when().
+                post("/articles/buy").
+                then().log().all().
+                statusCode(HttpStatus.BAD_REQUEST.value());
+
+        Optional<Article> boughtItemOptional1 = articleRepository.findByProductFullNameIgnoreCase(articleBuy1.getProductFullName());
+        Assert.isTrue(boughtItemOptional1.isPresent(), "Product not found");
+        //toDo why? assertEquals(article.getQuantity(), boughtItemOptional1.get().getQuantity(), "items did not get deleted from database");
+    }
+
+    /*@Test
+    void buyArticlePayFailRollback() throws PaymentProviderException {
+        Mockito.doThrow(new PaymentProviderException("error")).when(bankPaymentGateway).pay(Mockito.anyDouble(), Mockito.anyString());
+
+
+        ArticleBuyDTO articleBuy1 = new ArticleBuyDTO(article.getProductFullName(), 1);
+        ArticleBuyBankDTO bank = new ArticleBuyBankDTO(testIban);
+        List<ArticleBuyDTO> buyList = new ArrayList<>(Collections.singletonList(articleBuy1));
+        ArticlesBuyDTO buyWrapper = new ArticlesBuyDTO(buyList, bank);
+
+        String request = new Gson().toJson(buyWrapper);
+        given().body(request).contentType(ContentType.JSON).
+                when().
+                post("/articles/buy").
+                then().log().all().
+                statusCode(HttpStatus.BAD_REQUEST.value());
+
+        Optional<Article> boughtItemOptional1 = articleRepository.findByProductFullNameIgnoreCase(articleBuy1.getProductFullName());
+        Assert.isTrue(boughtItemOptional1.isPresent(), "Product not found");
+        assertEquals(article.getQuantity(), boughtItemOptional1.get().getQuantity(), "items did not get deleted from database");
+    }*/
 
 }

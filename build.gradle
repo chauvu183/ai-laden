@@ -75,7 +75,6 @@ dependencies {
     testImplementation 'io.rest-assured:spring-mock-mvc:4.2.0'
     testImplementation 'org.hamcrest:java-hamcrest:2.0.0.0'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    //exclude  junit-vintage-engine
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.5.1'
     testImplementation 'org.junit.jupiter:junit-jupiter-params:5.5.1'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.5.1'
@@ -88,10 +87,13 @@ dependencyManagement {
 }
 
 test {
-    useJUnitPlatform()
+    useJUnitPlatform {
+        excludeEngines 'junit-vintage'
+    }
     failFast = true
     testLogging {
         events "passed", "skipped", "failed"
         exceptionFormat "full"
     }
+
 }

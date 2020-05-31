@@ -7,7 +7,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
-@Profile("testing")
+/*@Profile("testing")
 @Configuration
 public class TestConfiguration {
 
@@ -16,4 +16,4 @@ public class TestConfiguration {
         return Mockito.mock(BankPaymentGateway.class);
     }
 
-}
+}*/

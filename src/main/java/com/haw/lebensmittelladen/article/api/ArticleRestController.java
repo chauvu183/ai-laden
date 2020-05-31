@@ -24,8 +24,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static com.haw.lebensmittelladen.article.exceptions.ArticlesOutOfStockException.formatArticlesNameList;
-
 @RestController
 @RequestMapping(path = "/articles")
 @Api(value = "/articles", tags = "Articles")
@@ -98,11 +96,6 @@ public class ArticleRestController {
     @PostMapping(value = "/buy")
     @ResponseStatus(HttpStatus.OK)
     public ArticlesSoldDTO buyArticles(@Valid @RequestBody ArticlesBuyDTO articlesBuyDTO) throws ArticlesOutOfStockException, PaymentProviderException, ArticleNotFoundException {
-        /*List<String> productsOutOfStockNames = articlesBuyDTO.getArticles().stream()
-                .filter(a -> !articleRepository.findByProductFullNameIgnoreCase(a.getProductFullName())
-                        .get()
-                        .enoughInStock(a.getAmount()))
-                .map(ArticleBuyDTO::getProductFullName).collect(Collectors.toList());*/
         List<Article> articles =
                 articleRepository.findByProductFullNames(
                         articlesBuyDTO
@@ -115,18 +108,10 @@ public class ArticleRestController {
         Map<String, Article> articleMap = articles.stream().collect(Collectors.toMap(Article::getProductFullName, a -> a));
         for (ArticleBuyDTO buyArticle : articlesBuyDTO.getArticles()) {
             if (!articleMap.containsKey(buyArticle.getProductFullName())) {
-                ArticleNotFoundException.productName(buyArticle.getProductFullName());
+                throw ArticleNotFoundException.productName(buyArticle.getProductFullName());
             }
         }
-
-        List<String> productsOutOfStockNames = articlesBuyDTO.getArticles().stream()
-                .filter(buyArticle -> !articleMap.get(buyArticle.getProductFullName()).enoughInStock(buyArticle.getAmount()))
-                .map(ArticleBuyDTO::getProductFullName).collect(Collectors.toList());
-
-        if (!productsOutOfStockNames.isEmpty()) {
-            throw new ArticlesOutOfStockException(formatArticlesNameList(productsOutOfStockNames));
-        }
-        return paymentService.payForProducts(articlesBuyDTO);
+        return paymentService.payForProducts(articlesBuyDTO, articleMap);
     }
 
 }

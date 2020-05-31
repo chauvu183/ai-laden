@@ -6,16 +6,18 @@ import com.haw.lebensmittelladen.article.domain.dtos.ArticlesBuyDTO;
 import com.haw.lebensmittelladen.article.domain.dtos.ArticlesSoldDTO;
 import com.haw.lebensmittelladen.article.domain.entities.Article;
 import com.haw.lebensmittelladen.article.domain.repositories.ArticleRepository;
-import com.haw.lebensmittelladen.article.exceptions.ArticleNotFoundException;
+import com.haw.lebensmittelladen.article.exceptions.ArticlesOutOfStockException;
 import com.haw.lebensmittelladen.article.exceptions.PaymentProviderException;
 import com.haw.lebensmittelladen.article.gateways.PaymentGateway;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static com.haw.lebensmittelladen.article.exceptions.ArticlesOutOfStockException.formatArticlesNameList;
 
 @Service
 public class PaymentService {
@@ -25,44 +27,31 @@ public class PaymentService {
     @Autowired
     ArticleRepository articleRepository;
 
-    public ArticlesSoldDTO payForProducts(ArticlesBuyDTO articlesBuyDTO) throws ArticleNotFoundException, PaymentProviderException {
-        //todo: "reserve" articles and undo action when payment failed
-
-        Map<Article, Integer> articlesAmountToBuyMap = new HashMap<>();
+    @Transactional
+    public ArticlesSoldDTO payForProducts(ArticlesBuyDTO articlesBuyDTO, Map<String, Article> articleMap) throws PaymentProviderException, ArticlesOutOfStockException {
         List<ArticleSoldDTO> soldList = new ArrayList<>();
         double sumToPay = 0.0;
 
-        for (ArticleBuyDTO a : articlesBuyDTO.getArticles()) {
-            Article articleEntity = articleRepository
-                    .findByProductFullNameIgnoreCase(a.getProductFullName())
-                    .orElseThrow(() -> new ArticleNotFoundException(a.getProductFullName()));
+        List<String> productsOutOfStockNames = new ArrayList<>();
 
-            int amount = a.getAmount();
+        for (ArticleBuyDTO buyArticle : articlesBuyDTO.getArticles()) {
+            Article article = articleMap.get(buyArticle.getProductFullName());
+            soldList.add(new ArticleSoldDTO(article, buyArticle.getAmount()));
+            sumToPay += article.getPrice() * buyArticle.getAmount();
 
-            if(!articlesAmountToBuyMap.containsKey(articleEntity)){
-                articlesAmountToBuyMap
-                        .put(articleEntity, amount);
+            if (!article.takeOutOfStock(buyArticle.getAmount())) {
+                productsOutOfStockNames.add(buyArticle.getProductFullName());
             }
-            else{
-                articlesAmountToBuyMap
-                        .put(articleEntity, articlesAmountToBuyMap
-                                .get(articleEntity));
-            }
-
-            sumToPay += articleEntity.getPrice() * amount;
-            soldList.add(new ArticleSoldDTO(articleEntity,amount));
-
-            //articleEntity.takeOutOfStock(a.getAmount());
         }
-        ArticlesSoldDTO checkoutReference = new ArticlesSoldDTO(soldList,sumToPay);
+
+        if (!productsOutOfStockNames.isEmpty()) {
+            throw new ArticlesOutOfStockException(formatArticlesNameList(productsOutOfStockNames));
+        }
+
+        ArticlesSoldDTO checkoutReference = new ArticlesSoldDTO(soldList, sumToPay);
+        articleRepository.saveAll(articleMap.values());
 
         payment.pay(sumToPay, articlesBuyDTO.getPaymentDetails().getIBan());
-
-        for (Map.Entry<Article, Integer> articleAmount : articlesAmountToBuyMap.entrySet()) {
-            articleAmount.getKey().takeOutOfStock(articleAmount.getValue());
-            articleRepository.save(articleAmount.getKey());
-        }
         return checkoutReference;
-
     }
 }

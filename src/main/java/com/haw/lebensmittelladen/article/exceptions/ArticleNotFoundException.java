@@ -14,7 +14,7 @@ public class ArticleNotFoundException extends Exception {
 
     String article;
 
-    public static ArticleNotFoundException productName(String name){
+    public static ArticleNotFoundException productName(String name) {
         return new ArticleNotFoundException(String.format(exceptionBasis + " Product Name: %s.", name), name);
     }
 
@@ -31,7 +31,7 @@ public class ArticleNotFoundException extends Exception {
     }
 
     public ArticleNotFoundException(String name) {
-        super("Article not found: "+name);
+        super("Article not found: " + name);
         this.article = name;
     }
 
