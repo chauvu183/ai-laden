@@ -36,14 +36,9 @@ public class BankPaymentGateway implements PaymentGateway {
         //headers.set();
         System.out.println(headers.getContentType());
         System.out.println(body);
-        try {
-            ResponseEntity<String> entity = restTemplate.exchange(HOST + "/accounts/customer/transactions", HttpMethod.POST, body, String.class);
-            if (!entity.getStatusCode().is2xxSuccessful()) {
-                throw new PaymentProviderException(entity.getStatusCode().value() + " " + entity.getStatusCode().getReasonPhrase());
-            }
-        } catch (Exception exception){
-            System.out.println(exception);
-            throw exception;
+        ResponseEntity<String> entity = restTemplate.exchange(HOST + "/accounts/customer/transactions", HttpMethod.POST, body, String.class);
+        if (!entity.getStatusCode().is2xxSuccessful()) {
+            throw new PaymentProviderException(entity.getStatusCode().value() + " " + entity.getStatusCode().getReasonPhrase());
         }
     }
 
