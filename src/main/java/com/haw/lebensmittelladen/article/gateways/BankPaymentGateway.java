@@ -20,7 +20,6 @@ public class BankPaymentGateway implements PaymentGateway {
 
     @Override
     public void pay(double amount, String iban) throws PaymentProviderException {
-        //todo: get a fixed shop iban/password
         if (!testMyAccount()) {
             BankCreateResponseDTO myCreds = createMyAccount();
             myIban = myCreds.iban;
@@ -29,13 +28,8 @@ public class BankPaymentGateway implements PaymentGateway {
         HttpHeaders headers = new HttpHeaders();
         headers.setBasicAuth(myIban, PASSWORD);
         headers.setContentType(MediaType.APPLICATION_JSON);
-        BankPayDTO transferBody = new BankPayDTO(myIban, iban, amount);
-        System.out.println(new Gson().toJson(transferBody));
-        HttpEntity<String> body = new HttpEntity<>(new Gson().toJson(transferBody), headers);
-        //ResponseEntity<String> entity = restTemplate.postForEntity(HOST+"/accounts/customer/transactions", body, String.class);
-        //headers.set();
-        System.out.println(headers.getContentType());
-        System.out.println(body);
+        BankPayDTO transferBody = new BankPayDTO(iban, myIban, -amount);
+        HttpEntity<BankPayDTO> body = new HttpEntity<>(transferBody, headers);
         ResponseEntity<String> entity = restTemplate.exchange(HOST + "/accounts/customer/transactions", HttpMethod.POST, body, String.class);
         if (!entity.getStatusCode().is2xxSuccessful()) {
             throw new PaymentProviderException(entity.getStatusCode().value() + " " + entity.getStatusCode().getReasonPhrase());
@@ -45,12 +39,10 @@ public class BankPaymentGateway implements PaymentGateway {
     private boolean testMyAccount() throws PaymentProviderException {
         final String ressource = "/accounts/customer";
         HttpHeaders headers = new HttpHeaders();
-        //headers.setAccept(List.of(MediaType.APPLICATION_JSON));
         headers.setBasicAuth(myIban, PASSWORD);
         HttpEntity<String> request = new HttpEntity<>(headers);
         System.out.println(HOST + ressource);
         ResponseEntity<String> entity = restTemplate.exchange(HOST + ressource, HttpMethod.GET, request, String.class);
-        //restTemplate.getForEntity(HOST+ressource, String.class);
         if (entity.getStatusCode().is2xxSuccessful()) {
             return true;
         } else if (entity.getStatusCode().isError()) {
@@ -62,7 +54,6 @@ public class BankPaymentGateway implements PaymentGateway {
     private BankCreateResponseDTO createMyAccount() throws PaymentProviderException {
         final String ressource = "/accounts/create";
         HttpHeaders headers = new HttpHeaders();
-        headers.setAccept(List.of(MediaType.APPLICATION_JSON));
         BankCreateDTO createBody = new BankCreateDTO(PASSWORD);
         HttpEntity<BankCreateDTO> body = new HttpEntity<>(createBody, headers);
         ResponseEntity<String> entity = restTemplate.postForEntity(HOST + ressource, body, String.class);
