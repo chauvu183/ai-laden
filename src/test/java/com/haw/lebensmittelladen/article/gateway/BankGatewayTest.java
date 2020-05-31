@@ -22,7 +22,7 @@ public class BankGatewayTest {
     BankPaymentGateway bankPaymentGateway;
 
     //this is just for triggering the gateway
-    @Test
+    //@Test
     void paymentTest() throws PaymentProviderException {
         bankPaymentGateway.pay(12.50,"DE74512108001245126198");
     }
