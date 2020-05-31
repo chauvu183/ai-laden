@@ -80,11 +80,5 @@ class PopulateTestDataRunner implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        Arrays.asList(
-                "Tomate,Gurke,Erbse".split(","))
-                .forEach(
-                        name -> articleRepository.save(new Article(name, "Edeka Bio " + name, "gr",500,"Edeka", 1.55, 2))
-                );
-        System.out.println(articleRepository.findAll());
     }
 }
