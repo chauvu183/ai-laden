@@ -39,8 +39,15 @@ public class PaymentService {
 
             int amount = a.getAmount();
 
-            articlesAmountToBuyMap
-                    .put(articleEntity, amount);
+            if(!articlesAmountToBuyMap.containsKey(articleEntity)){
+                articlesAmountToBuyMap
+                        .put(articleEntity, amount);
+            }
+            else{
+                articlesAmountToBuyMap
+                        .put(articleEntity, articlesAmountToBuyMap
+                                .get(articleEntity));
+            }
 
             sumToPay += articleEntity.getPrice() * amount;
             soldList.add(new ArticleSoldDTO(articleEntity,amount));
