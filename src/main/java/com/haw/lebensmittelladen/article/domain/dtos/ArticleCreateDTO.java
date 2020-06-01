@@ -7,7 +7,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.Column;
 import javax.validation.constraints.*;
 
 @Data
@@ -51,8 +50,8 @@ public class ArticleCreateDTO {
     private Integer quantity;
 
     @Override
-    public String toString(){
+    public String toString() {
         String seperator = " | ";
-        return productName+seperator+productFullName+seperator+productSizeUnit+seperator+productSize+seperator+company+seperator+price+seperator+quantity;
+        return productName + seperator + productFullName + seperator + productSizeUnit + seperator + productSize + seperator + company + seperator + price + seperator + quantity;
     }
 }

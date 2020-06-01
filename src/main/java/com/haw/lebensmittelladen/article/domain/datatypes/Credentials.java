@@ -8,8 +8,8 @@ public class Credentials {
     String password;
     String account;
 
-    public Credentials(String pass, String login){
-        password=pass;
-        account=login;
+    public Credentials(String pass, String login) {
+        password = pass;
+        account = login;
     }
 }

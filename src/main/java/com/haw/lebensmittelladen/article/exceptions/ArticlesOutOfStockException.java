@@ -15,14 +15,14 @@ public class ArticlesOutOfStockException extends Exception {
     private final String articleNames;
 
     public ArticlesOutOfStockException(String articleNames) {
-        super(String.format("Articles do not meet requested stock amount: "+articleNames));
+        super(String.format("Articles do not meet requested stock amount: " + articleNames));
 
         this.articleNames = articleNames;
     }
 
-    public static String formatArticlesNameList(List<String> names){
+    public static String formatArticlesNameList(List<String> names) {
         StringBuilder sb = new StringBuilder();
-        names.forEach(a->sb.append(" "+a));
+        names.forEach(a -> sb.append(" " + a));
         return sb.toString();
     }
 

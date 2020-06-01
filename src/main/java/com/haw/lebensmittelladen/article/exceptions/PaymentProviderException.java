@@ -1,6 +1,5 @@
 package com.haw.lebensmittelladen.article.exceptions;
 
-import com.haw.lebensmittelladen.article.domain.dtos.ArticlesBuyDTO;
 import lombok.EqualsAndHashCode;
 import lombok.Value;
 import org.springframework.http.HttpStatus;
@@ -15,7 +14,7 @@ public class PaymentProviderException extends Exception {
     private final String message;
 
     public PaymentProviderException(String message) {
-        super(DEFAULT+message);
-        this.message = DEFAULT+message;
+        super(DEFAULT + message);
+        this.message = DEFAULT + message;
     }
 }

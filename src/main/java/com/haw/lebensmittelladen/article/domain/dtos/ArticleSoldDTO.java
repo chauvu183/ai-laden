@@ -46,7 +46,7 @@ public class ArticleSoldDTO {
     @Positive
     private int soldQuantity;
 
-    public ArticleSoldDTO(Article art, int amountBought){
+    public ArticleSoldDTO(Article art, int amountBought) {
         this.productName = art.getProductName();
         this.productFullName = art.getProductFullName();
         this.productSizeUnit = art.getProductSizeUnit();

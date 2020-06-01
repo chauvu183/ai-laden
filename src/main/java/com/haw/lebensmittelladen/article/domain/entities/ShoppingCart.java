@@ -1,8 +1,5 @@
 package com.haw.lebensmittelladen.article.domain.entities;
 
-import lombok.Data;
-
-import javax.persistence.Entity;
 import java.util.HashMap;
 import java.util.Map;
 

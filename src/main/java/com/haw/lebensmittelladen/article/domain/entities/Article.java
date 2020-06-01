@@ -1,13 +1,10 @@
 package com.haw.lebensmittelladen.article.domain.entities;
 
 import com.haw.lebensmittelladen.article.domain.dtos.ArticleCreateDTO;
-import com.haw.lebensmittelladen.article.domain.repositories.ArticleRepository;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-
 
 import javax.persistence.*;
 import javax.validation.constraints.Positive;
@@ -71,7 +68,7 @@ public class Article {
                 articleCreateDTO.getProductSize(),
                 articleCreateDTO.getCompany(),
                 articleCreateDTO.getPrice(),
-                null==articleCreateDTO.getQuantity()?0:articleCreateDTO.getQuantity());
+                null == articleCreateDTO.getQuantity() ? 0 : articleCreateDTO.getQuantity());
     }
 
     public boolean isAvailable() {
@@ -82,11 +79,11 @@ public class Article {
         return quantity >= needed;
     }
 
-    public boolean takeOutOfStock(int amount){
-        if(!enoughInStock(amount)){
+    public boolean takeOutOfStock(int amount) {
+        if (!enoughInStock(amount)) {
             return false;
         }
-        this.quantity-=amount;
+        this.quantity -= amount;
         return true;
     }
 }

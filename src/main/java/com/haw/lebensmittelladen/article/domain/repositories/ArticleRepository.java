@@ -11,7 +11,9 @@ import java.util.Optional;
 @Repository
 public interface ArticleRepository extends JpaRepository<Article, Long> {
     List<Article> findAllByProductNameIgnoreCase(String productName);
+
     @Query("select a from Article a where a.productFullName in ?1")
     List<Article> findByProductFullNames(List<String> productFullName);
+
     Optional<Article> findByProductFullNameIgnoreCase(String productFullName);
 }

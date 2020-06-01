@@ -41,8 +41,8 @@ public class AdminRestController {
             @ApiResponse(code = 404, message = "Article not found"),
     })
     @DeleteMapping(value = "/{id:[\\d]+}")
-    public void deleteProduct(@PathVariable("id") Long productID) throws ArticleNotFoundException{
-        articleRepository.delete(articleRepository.findById(productID).orElseThrow(()->new ArticleNotFoundException(productID)));
+    public void deleteProduct(@PathVariable("id") Long productID) throws ArticleNotFoundException {
+        articleRepository.delete(articleRepository.findById(productID).orElseThrow(() -> new ArticleNotFoundException(productID)));
     }
 
     @ApiOperation(value = "add to amount of one article")
@@ -53,9 +53,9 @@ public class AdminRestController {
     })
     @PutMapping(value = "/{id:[\\d]+}")
     public void updateProductAmount(@PathVariable("id") Long productID, @RequestBody int amount) throws ArticleNotFoundException, ArticlesOutOfStockException {
-        Article article = articleRepository.findById(productID).orElseThrow(()->new ArticleNotFoundException(productID));
-        article.setQuantity(article.getQuantity()+amount);
-        if(article.getQuantity()<0){
+        Article article = articleRepository.findById(productID).orElseThrow(() -> new ArticleNotFoundException(productID));
+        article.setQuantity(article.getQuantity() + amount);
+        if (article.getQuantity() < 0) {
             throw new ArticlesOutOfStockException(article.getProductFullName());
         }
         articleRepository.save(article);
@@ -68,9 +68,9 @@ public class AdminRestController {
     })
     @PutMapping()
     public Article updateArticleDataByProductFullName(@Valid @RequestBody ArticleCreateDTO articleUpdate) throws ArticleNotFoundException {
-        Article article = articleRepository.findByProductFullNameIgnoreCase(articleUpdate.getProductFullName()).orElseThrow(()->new ArticleNotFoundException(articleUpdate.getProductFullName()));
+        Article article = articleRepository.findByProductFullNameIgnoreCase(articleUpdate.getProductFullName()).orElseThrow(() -> new ArticleNotFoundException(articleUpdate.getProductFullName()));
 
-        if(null==articleUpdate.getQuantity()){
+        if (null == articleUpdate.getQuantity()) {
             articleUpdate.setQuantity(article.getQuantity());
         }
 
@@ -79,8 +79,6 @@ public class AdminRestController {
 
         return newArticle;
     }
-
-
 
 
 }

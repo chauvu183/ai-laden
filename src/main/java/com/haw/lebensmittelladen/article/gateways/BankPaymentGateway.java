@@ -7,8 +7,6 @@ import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.List;
-
 @Service
 public class BankPaymentGateway implements PaymentGateway {
     private static final String PASSWORD = "test";

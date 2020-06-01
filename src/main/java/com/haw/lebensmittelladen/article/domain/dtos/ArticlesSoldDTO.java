@@ -19,8 +19,8 @@ public class ArticlesSoldDTO {
     @ApiModelProperty(required = true)
     private double totalPrice;
 
-    public boolean sanityCheck(){
-        double accPrices = articles.stream().map(a -> a.getCumulatedPrice()).reduce( (i,acc) -> i+acc).get();
+    public boolean sanityCheck() {
+        double accPrices = articles.stream().map(a -> a.getCumulatedPrice()).reduce((i, acc) -> i + acc).get();
         return accPrices == totalPrice;
     }
 }
