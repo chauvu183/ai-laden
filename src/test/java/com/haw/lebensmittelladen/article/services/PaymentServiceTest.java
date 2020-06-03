@@ -17,6 +17,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.json.AutoConfigureJsonTesters;
+import org.springframework.boot.test.autoconfigure.web.client.RestClientTest;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.web.server.LocalServerPort;
@@ -119,7 +120,7 @@ public class PaymentServiceTest {
     }
 
     @Test
-    void buyMultipleArticlesNotFoundFail() throws PaymentProviderException, ArticlesOutOfStockException {
+    void buyMultipleArticlesNotFoundFail() {
         ArticleBuyDTO articleBuy1 = new ArticleBuyDTO("articleshouldnotbeFound!", 1);
         ArticleBuyDTO articleBuy2 = new ArticleBuyDTO(articleBanana.getProductFullName(), 1);
         ArticleBuyBankDTO bank = new ArticleBuyBankDTO(testIban);

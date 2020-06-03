@@ -1,44 +1,49 @@
 package com.haw.lebensmittelladen.article.gateways;
 
-import com.google.gson.Gson;
 import com.haw.lebensmittelladen.article.exceptions.PaymentProviderException;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.*;
+import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.cloud.client.loadbalancer.LoadBalanced;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 @Service
 public class BankPaymentGateway implements PaymentGateway {
     public static final String HOST = "http://AIBANK";
     public static final String TRANSACTION_URL = "/accounts/customer/transactions";
-    public static final String CUSTOMER_URL = "/accounts/customer";
-    public static final String ACCOUNT_CREATE_URL = "/accounts/create";
+    //public static final String CUSTOMER_URL = "/accounts/customer";
+    //public static final String ACCOUNT_CREATE_URL = "/accounts/create";
 
     private String myIban = "DE48794319732728991292";
     private static final String PASSWORD = "test";
 
-    @Autowired
+    @LoadBalanced
     RestTemplate restTemplate;
+
+    public BankPaymentGateway(RestTemplateBuilder templateBuilder) {
+        this.restTemplate = templateBuilder.build();
+    }
 
     @Override
     public void pay(double amount, String iban) throws PaymentProviderException {
-        if (!testMyAccount()) {
-            BankCreateResponseDTO myCreds = createMyAccount();
-            myIban = myCreds.iban;
-        }
-
         HttpHeaders headers = new HttpHeaders();
         headers.setBasicAuth(myIban, PASSWORD);
         headers.setContentType(MediaType.APPLICATION_JSON);
         BankPayDTO transferBody = new BankPayDTO(iban, myIban, -amount);
         HttpEntity<BankPayDTO> body = new HttpEntity<>(transferBody, headers);
-        ResponseEntity<String> entity = restTemplate.exchange(HOST + TRANSACTION_URL, HttpMethod.POST, body, String.class);
-        if (!entity.getStatusCode().is2xxSuccessful()) {
-            throw new PaymentProviderException(entity.getStatusCode().value() + " " + entity.getStatusCode().getReasonPhrase());
+        try {
+            restTemplate.exchange(HOST + TRANSACTION_URL, HttpMethod.POST, body, String.class);
+        } catch (HttpClientErrorException httpClientErrorException) {
+            throw new PaymentProviderException(httpClientErrorException.getStatusCode().value() + " " +
+                    httpClientErrorException.getStatusCode().getReasonPhrase());
         }
     }
 
-    private boolean testMyAccount() throws PaymentProviderException {
+    /*protected boolean testMyAccount() throws PaymentProviderException {
         HttpHeaders headers = new HttpHeaders();
         headers.setBasicAuth(myIban, PASSWORD);
         HttpEntity<String> request = new HttpEntity<>(headers);
@@ -51,7 +56,7 @@ public class BankPaymentGateway implements PaymentGateway {
         return false;
     }
 
-    private BankCreateResponseDTO createMyAccount() throws PaymentProviderException {
+    protected BankCreateResponseDTO createMyAccount() throws PaymentProviderException {
         HttpHeaders headers = new HttpHeaders();
         BankCreateDTO createBody = new BankCreateDTO(PASSWORD);
         HttpEntity<BankCreateDTO> body = new HttpEntity<>(createBody, headers);
@@ -61,9 +66,9 @@ public class BankPaymentGateway implements PaymentGateway {
         }
         BankCreateResponseDTO resp = new Gson().fromJson(entity.getBody(), BankCreateResponseDTO.class);
         return resp;
-    }
+    }*/
 
-    class BankPayDTO {
+    static class BankPayDTO {
         private String ibanTo;
         private String ibanFrom;
         private Double transactionAmount;
@@ -87,7 +92,7 @@ public class BankPaymentGateway implements PaymentGateway {
         }
     }
 
-    class BankCreateDTO {
+    /*static class BankCreateDTO {
         private String password;
 
         public BankCreateDTO(String password) {
@@ -99,7 +104,7 @@ public class BankPaymentGateway implements PaymentGateway {
         }
     }
 
-    class BankCreateResponseDTO {
+    static class BankCreateResponseDTO {
         private String iban;
         private String password;
 
@@ -115,5 +120,5 @@ public class BankPaymentGateway implements PaymentGateway {
         public String getPassword() {
             return password;
         }
-    }
+    }*/
 }
