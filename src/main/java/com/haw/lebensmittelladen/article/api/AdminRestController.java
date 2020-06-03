@@ -10,6 +10,8 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -52,29 +54,33 @@ public class AdminRestController {
             @ApiResponse(code = 400, message = "Insufficient article stock"),
     })
     @PutMapping(value = "/{id:[\\d]+}")
-    public void updateProductAmount(@PathVariable("id") Long productID, @RequestBody int amount) throws ArticleNotFoundException, ArticlesOutOfStockException {
+    public ResponseEntity updateProductAmount(@PathVariable("id") Long productID, @RequestBody int amount) throws ArticleNotFoundException, ArticlesOutOfStockException {
         Article article = articleRepository.findById(productID).orElseThrow(() -> new ArticleNotFoundException(productID));
+
         article.setQuantity(article.getQuantity() + amount);
         if (article.getQuantity() < 0) {
             throw new ArticlesOutOfStockException(article.getProductFullName());
         }
         articleRepository.save(article);
+        return new ResponseEntity(HttpStatus.OK);
     }
 
     @ApiOperation(value = "add to amount of one article")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Successfully updated article"),
-            @ApiResponse(code = 404, message = "Article not found")
+            @ApiResponse(code = 404, message = "Article not found"),
+            @ApiResponse(code = 400, message = "Invalid quantity")
     })
     @PutMapping()
     public Article updateArticleDataByProductFullName(@Valid @RequestBody ArticleCreateDTO articleUpdate) throws ArticleNotFoundException {
         Article article = articleRepository.findByProductFullNameIgnoreCase(articleUpdate.getProductFullName()).orElseThrow(() -> new ArticleNotFoundException(articleUpdate.getProductFullName()));
 
-        if (null == articleUpdate.getQuantity()) {
-            articleUpdate.setQuantity(article.getQuantity());
-        }
+//        if (null == articleUpdate.getQuantity()) {
+//            articleUpdate.setQuantity(article.getQuantity());
+//        } //null not possible todo: new DTO for updates
 
         Article newArticle = Article.of(articleUpdate);
+        newArticle.setId(article.getId());
         articleRepository.save(newArticle);
 
         return newArticle;
