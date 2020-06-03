@@ -64,15 +64,8 @@ public class Application {
 @Profile("default")
 class PopulateTestDataRunner implements CommandLineRunner {
 
-    private final ArticleRepository articleRepository;
-
-    @Autowired
-    public PopulateTestDataRunner(ArticleRepository articleRepository) {
-        super();
-        this.articleRepository = articleRepository;
-    }
-
     @Override
     public void run(String... args) {
+        PopulateTestData.PopulateTestData.fill();
     }
 }

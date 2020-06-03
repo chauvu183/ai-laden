@@ -1,13 +1,11 @@
 package com.haw.lebensmittelladen.article.gateways;
 
-import com.haw.lebensmittelladen.Application;
 import com.haw.lebensmittelladen.article.exceptions.PaymentProviderException;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.json.AutoConfigureJsonTesters;
 import org.springframework.boot.test.autoconfigure.web.client.RestClientTest;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -26,6 +24,7 @@ import static org.springframework.test.web.client.response.MockRestResponseCreat
 @ExtendWith(SpringExtension.class)
 @ActiveProfiles(profiles = "testing")
 @RestClientTest(BankPaymentGateway.class)
+@ContextConfiguration(classes = { BankPaymentGateway.class, RestTemplate.class })
 public class BankPaymentGatewayTest {
 
     double amount = 5;
@@ -42,12 +41,19 @@ public class BankPaymentGatewayTest {
     private BankPaymentGateway bankPaymentGateway;
 
     @Autowired
+    private RestTemplate restTemplate;
+
     private MockRestServiceServer server;
+
+    @BeforeEach
+    public void setUp() {
+        server= MockRestServiceServer.createServer(restTemplate);
+    }
 
     @Test
     void createAccountSuccess() throws PaymentProviderException {
         server
-                .expect(requestTo(BankPaymentGateway.HOST + BankPaymentGateway.TRANSACTION_URL))
+                .expect(requestTo(bankPaymentGateway.HOST + BankPaymentGateway.TRANSACTION_URL))
                 .andExpect(method(HttpMethod.POST))
                 .andRespond(withStatus(HttpStatus.CREATED)
                         .body(validResponse)
@@ -58,7 +64,7 @@ public class BankPaymentGatewayTest {
     @Test
     void createAccountFail() {
         server
-                .expect(requestTo(BankPaymentGateway.HOST + BankPaymentGateway.TRANSACTION_URL))
+                .expect(requestTo(bankPaymentGateway.HOST + BankPaymentGateway.TRANSACTION_URL))
                 .andExpect(method(HttpMethod.POST))
                 .andRespond(withStatus(HttpStatus.BAD_REQUEST));
         assertThrows(PaymentProviderException.class, () -> bankPaymentGateway.pay(amount, theirIban));

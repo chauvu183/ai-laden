@@ -1,8 +1,7 @@
 package com.haw.lebensmittelladen.article.gateways;
 
 import com.haw.lebensmittelladen.article.exceptions.PaymentProviderException;
-import org.springframework.boot.web.client.RestTemplateBuilder;
-import org.springframework.cloud.client.loadbalancer.LoadBalanced;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -13,7 +12,8 @@ import org.springframework.web.client.RestTemplate;
 
 @Service
 public class BankPaymentGateway implements PaymentGateway {
-    public static final String HOST = "http://AIBANK";
+    @Value("${laden.bank.url}")
+    public String HOST;
     public static final String TRANSACTION_URL = "/accounts/customer/transactions";
     //public static final String CUSTOMER_URL = "/accounts/customer";
     //public static final String ACCOUNT_CREATE_URL = "/accounts/create";
@@ -21,11 +21,11 @@ public class BankPaymentGateway implements PaymentGateway {
     private String myIban = "DE48794319732728991292";
     private static final String PASSWORD = "test";
 
-    @LoadBalanced
+    final
     RestTemplate restTemplate;
 
-    public BankPaymentGateway(RestTemplateBuilder templateBuilder) {
-        this.restTemplate = templateBuilder.build();
+    public BankPaymentGateway(RestTemplate restTemplate) {
+        this.restTemplate = restTemplate;
     }
 
     @Override

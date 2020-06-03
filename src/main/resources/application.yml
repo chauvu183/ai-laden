@@ -1,5 +1,10 @@
 server:
   port: 8080
+spring:
+  main:
+    allow-bean-definition-overriding: true
+  application:
+    name: fridge
 ---
 management:
   health:
@@ -10,33 +15,6 @@ logging:
     root: ERROR
     org.springframework.web: DEBUG
     org.hibernate: ERROR
----
-eureka:
-  client:
-    registerWithEureka: true
-    fetchRegistry: true
-    serviceUrl:
-      defaultZone: http://fridge.eureka.annabales.dev:8761/eureka
-  instance:
-    preferIpAddress: true
----
-spring:
-  profiles: default, testing, production
-  main:
-    allow-bean-definition-overriding: true
-  application:
-    name: laden
-  mail:
-    host: fakehost
-    port: 587
-    username: fake
-    password: fake
-    properties:
-      mail:
-        smtp:
-          auth: true
-          starttls:
-            enable: true
 ---
 spring:
   profiles: production
@@ -54,6 +32,20 @@ spring:
     url: jdbc:mysql://localhost:3306/bookingservice?createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true&useSSL=false
     username: root
     password: root
+---
+spring:
+  profiles: production, default
+eureka:
+  client:
+    registerWithEureka: true
+    fetchRegistry: true
+    serviceUrl:
+      defaultZone: http://fridge.eureka.annabales.dev:8761/eureka
+  instance:
+    preferIpAddress: true
+laden:
+  bank:
+    url: http://aibank
 ---
 spring:
   profiles: testing, default
@@ -75,3 +67,13 @@ spring:
     gcp:
       pubsub:
         enabled: false
+---
+spring:
+  profiles: testing
+eureka:
+  client:
+    register-with-eureka: false
+    fetch-registry: false
+laden:
+  bank:
+    url: http://localhost:8000

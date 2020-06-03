@@ -12,7 +12,10 @@ import java.util.List;
 public class PopulateTestData {
 
     public static void main(String[] args) {
-        String host = "http://34.107.46.200:8080";
+    }
+
+    public static void fill(){
+        String host = "http://localhost:8080";
 
         List<ArticleCreateDTO> articlesToCreate = new ArrayList<>();
         articlesToCreate.add(new ArticleCreateDTO("banana", "Edeka Bio Banane", "pc", 1, "Edeka", 0.70, 100));
@@ -33,7 +36,7 @@ public class PopulateTestData {
         articlesToCreate.add(new ArticleCreateDTO("tomato puree", "Tomatenmark", "ml", 400, "Noname", 0.70, 100));
         articlesToCreate.add(new ArticleCreateDTO("tomato puree", "Tomaten Pueree mit echter Tomate", "ml", 400, "Noname", 0.90, 100));
 
-        articlesToCreate.forEach(p -> System.out.println(p));
+        articlesToCreate.forEach(System.out::println);
 
 
         HttpHeaders headers = new HttpHeaders();
@@ -47,6 +50,5 @@ public class PopulateTestData {
             System.out.println(entity.getStatusCode().toString());
             System.out.println();
         });
-
     }
 }
