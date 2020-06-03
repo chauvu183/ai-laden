@@ -9,9 +9,13 @@ import org.springframework.web.client.RestTemplate;
 
 @Service
 public class BankPaymentGateway implements PaymentGateway {
-    private static final String PASSWORD = "test";
-    private static final String HOST = "http://AIBANK";
+    public static final String HOST = "http://AIBANK";
+    public static final String TRANSACTION_URL = "/accounts/customer/transactions";
+    public static final String CUSTOMER_URL = "/accounts/customer";
+    public static final String ACCOUNT_CREATE_URL = "/accounts/create";
+
     private String myIban = "DE48794319732728991292";
+    private static final String PASSWORD = "test";
 
     @Autowired
     RestTemplate restTemplate;
@@ -28,19 +32,17 @@ public class BankPaymentGateway implements PaymentGateway {
         headers.setContentType(MediaType.APPLICATION_JSON);
         BankPayDTO transferBody = new BankPayDTO(iban, myIban, -amount);
         HttpEntity<BankPayDTO> body = new HttpEntity<>(transferBody, headers);
-        ResponseEntity<String> entity = restTemplate.exchange(HOST + "/accounts/customer/transactions", HttpMethod.POST, body, String.class);
+        ResponseEntity<String> entity = restTemplate.exchange(HOST + TRANSACTION_URL, HttpMethod.POST, body, String.class);
         if (!entity.getStatusCode().is2xxSuccessful()) {
             throw new PaymentProviderException(entity.getStatusCode().value() + " " + entity.getStatusCode().getReasonPhrase());
         }
     }
 
     private boolean testMyAccount() throws PaymentProviderException {
-        final String ressource = "/accounts/customer";
         HttpHeaders headers = new HttpHeaders();
         headers.setBasicAuth(myIban, PASSWORD);
         HttpEntity<String> request = new HttpEntity<>(headers);
-        System.out.println(HOST + ressource);
-        ResponseEntity<String> entity = restTemplate.exchange(HOST + ressource, HttpMethod.GET, request, String.class);
+        ResponseEntity<String> entity = restTemplate.exchange(HOST + CUSTOMER_URL, HttpMethod.GET, request, String.class);
         if (entity.getStatusCode().is2xxSuccessful()) {
             return true;
         } else if (entity.getStatusCode().isError()) {
@@ -50,11 +52,10 @@ public class BankPaymentGateway implements PaymentGateway {
     }
 
     private BankCreateResponseDTO createMyAccount() throws PaymentProviderException {
-        final String ressource = "/accounts/create";
         HttpHeaders headers = new HttpHeaders();
         BankCreateDTO createBody = new BankCreateDTO(PASSWORD);
         HttpEntity<BankCreateDTO> body = new HttpEntity<>(createBody, headers);
-        ResponseEntity<String> entity = restTemplate.postForEntity(HOST + ressource, body, String.class);
+        ResponseEntity<String> entity = restTemplate.postForEntity(HOST + ACCOUNT_CREATE_URL, body, String.class);
         if (entity.getStatusCode().isError()) {
             throw new PaymentProviderException(entity.getStatusCode().value() + " " + entity.getStatusCode().getReasonPhrase());
         }

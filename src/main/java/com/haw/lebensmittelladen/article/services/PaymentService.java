@@ -27,7 +27,7 @@ public class PaymentService {
     @Autowired
     ArticleRepository articleRepository;
 
-    @Transactional
+    @Transactional(rollbackFor = PaymentProviderException.class)
     public ArticlesSoldDTO payForProducts(ArticlesBuyDTO articlesBuyDTO, Map<String, Article> articleMap) throws PaymentProviderException, ArticlesOutOfStockException {
         List<ArticleSoldDTO> soldList = new ArrayList<>();
         double sumToPay = 0.0;

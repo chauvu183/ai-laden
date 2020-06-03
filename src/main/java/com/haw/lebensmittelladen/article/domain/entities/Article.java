@@ -60,6 +60,17 @@ public class Article {
         this.quantity = quantity;
     }
 
+    public Article(Article copyOf) {
+        this.id = copyOf.id;
+        this.productName = copyOf.productName;
+        this.productFullName = copyOf.productFullName;
+        this.productSizeUnit = copyOf.productSizeUnit;
+        this.productSize = copyOf.productSize;
+        this.company = copyOf.company;
+        this.price = copyOf.price;
+        this.quantity = copyOf.quantity;
+    }
+
     public static Article of(ArticleCreateDTO articleCreateDTO) {
         return new Article(
                 articleCreateDTO.getProductName(),
