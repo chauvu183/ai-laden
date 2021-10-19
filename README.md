@@ -6,11 +6,8 @@ Introduction and Goals
 
 Requirements Overview
 ---------------------
-https://docs.arc42.org/home/
 
-
-"Der Kunde hat die Möglichkeit **Lebensmittel bei einem Lebensmittelladen zu kaufen** und dem Kühlschrank hinzuzufügen. **Der Laden stellt eine Datenbank mit den gültigen Lebensmitteln zur Verfügung.**"
-[Requirements](uploads/e269e9341ce19f0bfe0448a475bc00ea/AI_-_Aufgabenblatt_2.pdf)
+"The customer has the option to buy food from a grocery store and add it to the refrigerator. The store provides a database of valid groceries." 
 
 To fulfill these requirements, the **users** of the shop needs to be able to:
 * list articles with stock amount
@@ -25,10 +22,10 @@ the **operators** of the shop needs to be able to:
 Quality Goals
 -------------
 
-* einer den verfügbaren Ressourcen angemessenen Codequalität
-* Umfangreiche, automatisierte Tests für Komponenten und APIs unter Verwendung von Mocks
-* Persistenz mit JPA und H2 für die Testing-Stage und Google Cloud SQL für die Production-Stage
-* Continuous Deployment mittels Gitlab und Docker auf die Google Cloud Platform
+* Code quality appropriate to the available resources
+* Extensive, automated testing for components and APIs using mocks
+* Persistence using JPA and H2 for the testing stage and Google Cloud SQL for the production stage.
+* Continuous deployment using Gitlab and Docker to the Google Cloud Platform.
 
 Stakeholders
 ------------
