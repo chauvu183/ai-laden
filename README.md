@@ -35,3 +35,28 @@ Stakeholders
 
 We are an independent shop service. Its open for everybody who needs a platform for online groceries shopping. In this scenario it is used by the fridge and (probably) recipe-service.
 
+System Scope and Context
+========================
+
+Business Context
+----------------
+
+| Communication Partner | Input | Output |
+| ------ | ------ | ------|
+| fridge-user | find info about certain article | article-information |
+| | buy article | recipe |
+| | find available articles | full articles info with stock amount |
+| recipe-user | valid product names | product types|
+| shop-owner| introduce new articles | - |
+| | update articles amount | - |
+| | update articles | - |
+| | delete articles | - |
+
+Tec Context
+----------------
+Communication via REST-API 
+
+![context_diagram_1_](uploads/ef79888b2fe157be51dd3405fb9f3c7a/context_diagram_1_.jpg)
+
+[context_diagram_2_.drawio](uploads/3d42d8fc4401b11212b5f2b385cc0981/context_diagram_2_.drawio)
+
