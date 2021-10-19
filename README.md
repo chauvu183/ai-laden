@@ -52,11 +52,22 @@ Business Context
 | | update articles | - |
 | | delete articles | - |
 
-Tec Context
+Tech Context
 ----------------
 Communication via REST-API 
 
 ![context_diagram_1_](uploads/ef79888b2fe157be51dd3405fb9f3c7a/context_diagram_1_.jpg)
 
 [context_diagram_2_.drawio](uploads/3d42d8fc4401b11212b5f2b385cc0981/context_diagram_2_.drawio)
+
+Technology decisions:
+
+* Java 13, Spring Boot for API creation
+* Swagger for API-Documentation
+* Deployment on GCloud for persistence
+* Docker container for use in GCloud
+
+How to archieve key quality goals:
+
+* Tests with JUnit5, RestAssured and Mockito
 
